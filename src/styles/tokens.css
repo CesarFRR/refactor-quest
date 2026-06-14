@@ -1,0 +1,35 @@
+/* ============================================================
+   RefactorQuest — Design Tokens (One Dark Pro)
+   ============================================================ */
+:root {
+  /* Fondos */
+  --bg-base:       #282c34;   /* editor / body */
+  --bg-surface:    #21252b;   /* panel izquierdo */
+  --bg-titlebar:   #181a1f;   /* barra superior */
+  --bg-popup:      #2c313a;
+
+  /* Texto */
+  --text-primary:  #abb2bf;
+  --text-muted:    #636d83;
+  --text-dim:      #4b5263;
+
+  /* Semánticos */
+  --color-ok:      #98c379;   /* código limpio */
+  --color-warn:    #e5c07b;   /* advertencia */
+  --color-crit:    #e06c75;   /* smell crítico */
+  --color-info:    #61afef;   /* resaltado neutro */
+  --color-purple:  #c678dd;
+
+  /* Bordes */
+  --border-hard:   #181a1f;
+  --border-soft:   #2c313a;
+
+  /* Tipografía */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-size-editor: 15px;
+  --line-height-editor: 1.6;
+
+  /* Espaciado */
+  --panel-width: 300px;
+  --bar-height:  36px;
+}

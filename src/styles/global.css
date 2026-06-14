@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sin animaciones bruscas — cumple EDTF empatía física */
+* { transition-duration: 120ms; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ── Scrollbar del panel lateral (como VS Code) ── */
+.rq-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.rq-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rq-panel::-webkit-scrollbar-thumb {
+  background: #3e4451;
+  border-radius: 3px;
+}
+.rq-panel::-webkit-scrollbar-thumb:hover {
+  background: #4b5263;
+}
+.rq-panel {
+  scrollbar-width: thin;
+  scrollbar-color: #3e4451 transparent;
+}

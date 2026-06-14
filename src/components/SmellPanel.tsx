@@ -1,0 +1,254 @@
+import { useState, useCallback, useRef, useEffect } from 'react'
+import type { GameState, Level } from '../types'
+
+interface Props {
+  level: Level
+  state: GameState
+  onRunTests: () => void
+  running: boolean
+}
+
+const SEVERITY_COLOR: Record<string, string> = {
+  critical: '#e06c75',
+  warning:  '#e5c07b',
+  info:     '#61afef',
+}
+
+const MIN_PANEL_WIDTH = 200
+const MAX_PANEL_WIDTH = 600
+
+function calcInitialWidth(): number {
+  if (typeof window === 'undefined') return 360
+  return Math.min(Math.max(360, Math.round(window.innerWidth * 0.28)), 500)
+}
+
+export function SmellPanel({ level, state, onRunTests, running }: Props) {
+  const [panelWidth, setPanelWidth] = useState(calcInitialWidth)
+  const dragging = useRef(false)
+  const startX = useRef(0)
+  const startW = useRef(0)
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    dragging.current = true
+    startX.current = e.clientX
+    startW.current = panelWidth
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }, [panelWidth])
+
+  const onMouseMove = useCallback((e: MouseEvent) => {
+    if (!dragging.current) return
+    const newW = Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, startW.current + (e.clientX - startX.current)))
+    setPanelWidth(newW)
+  }, [])
+
+  const onMouseUp = useCallback(() => {
+    if (!dragging.current) return
+    dragging.current = false
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [onMouseMove, onMouseUp])
+
+  const allPassed = state.testResults.length > 0 && state.testResults.every((r) => r.passed)
+  const won = allPassed && state.stability >= 75 && state.code !== level.initialCode
+  const codeChanged = state.code !== level.initialCode
+  const canRun = codeChanged && !running && !won
+
+  return (
+    <aside className="rq-panel" style={{
+      width: panelWidth,
+      flexShrink: 0,
+      background: '#21252b',
+      borderRight: '1px solid #181a1f',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+    }}>
+      {/* ── Contenido scrolleable ── */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <Section label="Misión" color="#e5c07b">
+          <p style={{ margin: 0, color: '#abb2bf', fontSize: 15, lineHeight: 1.6 }}>
+            {level.narrative}
+          </p>
+        </Section>
+
+        <Section label="Smells detectados">
+          {level.smells.map((smell) => {
+            const status = state.smellStatus[smell.id]
+            const isFixed = status === 'fixed'
+            return (
+              <div key={smell.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', fontSize: 14 }}>
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                  background: isFixed ? '#98c379' : SEVERITY_COLOR[smell.severity],
+                }} />
+                <span style={{
+                  flex: 1, color: isFixed ? '#636d83' : '#abb2bf',
+                  textDecoration: isFixed ? 'line-through' : 'none',
+                }}>
+                  {smell.name}
+                </span>
+                {isFixed ? (
+                  <span style={{ fontSize: 14, color: '#98c379', fontWeight: 600 }}>✓</span>
+                ) : (
+                  <span style={{
+                    fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
+                    background: smell.severity === 'critical' ? 'rgba(224,108,117,0.12)' : 'rgba(229,192,123,0.12)',
+                    color: SEVERITY_COLOR[smell.severity],
+                  }}>
+                    {smell.severity === 'critical' ? 'crítico' : 'warning'}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </Section>
+
+        <Section label="Estabilidad del sistema">
+          <StabilityBar value={state.stability} />
+        </Section>
+
+        <Section label="Energía disponible">
+          <span style={{
+            fontSize: 15, fontWeight: 600,
+            color: state.energy <= 2 ? '#e06c75' : state.energy <= 5 ? '#e5c07b' : '#98c379',
+          }}>
+            {state.energy} / {level.energyBudget} ⚡
+          </span>
+        </Section>
+
+        {level.smells.some(s => state.smellStatus[s.id] !== 'fixed') && (
+          <Section label={`Sugerencia ${codeChanged ? '' : '— opcional'}`}>
+            <div style={{
+              background: '#2c313a',
+              borderRadius: 5, padding: '8px 10px',
+              borderLeft: '2px solid #61afef',
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#61afef', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
+                Extract Method
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#abb2bf', marginBottom: 4 }}>
+                divide y vencerás
+              </div>
+              <div style={{ fontSize: 12, color: '#5c6370', lineHeight: 1.5 }}>
+                Extrae funciones helper para cada responsabilidad dentro de processOrder.
+              </div>
+            </div>
+          </Section>
+        )}
+      </div>
+
+      {/* ── Botón + resultados — siempre visible ── */}
+      <div style={{ padding: '12px 18px', borderTop: '1px solid #2c313a' }}>
+        {!codeChanged && (
+          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#e5c07b', textAlign: 'center' }}>
+            Edita el código antes de ejecutar tests
+          </p>
+        )}
+        <button
+          onClick={onRunTests}
+          disabled={!canRun}
+          style={{
+            width: '100%',
+            padding: '9px 0',
+            background: won ? '#98c379' : canRun ? '#61afef' : '#2c313a',
+            color: canRun || won ? '#1e2127' : '#636d83',
+            border: 'none',
+            borderRadius: 4,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontWeight: 700,
+            fontSize: 14,
+            cursor: canRun ? 'pointer' : 'not-allowed',
+            opacity: running ? 0.7 : 1,
+          }}
+        >
+          {running ? '⏳ Ejecutando…' :
+           won ? '✓ Nivel completado' :
+           '▶ Ejecutar tests'}
+        </button>
+
+        {state.testResults.length > 0 && (
+          <div style={{ marginTop: 8 }}>
+            {state.testResults.map((r) => (
+              <div key={r.testId} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 4 }}>
+                <span style={{ color: r.passed ? '#98c379' : '#e06c75', flexShrink: 0, fontSize: 14 }}>
+                  {r.passed ? '✓' : '✗'}
+                </span>
+                <span style={{ fontSize: 12, color: '#636d83', lineHeight: 1.4 }}>
+                  {r.testId}
+                  {!r.passed && r.error && (
+                    <span style={{ display: 'block', color: '#e06c75', marginTop: 2 }}>
+                      {r.error}
+                    </span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {state.testResults.length > 0 && !won && (
+          <p style={{ marginTop: 8, marginBottom: 0, fontSize: 12, color: '#e5c07b' }}>
+            Intenta otra estrategia.
+          </p>
+        )}
+      </div>
+
+      {/* ── Resize handle ── */}
+      <div
+        onMouseDown={onMouseDown}
+        style={{
+          position: 'absolute',
+          top: 0, right: 0,
+          width: 4,
+          height: '100%',
+          cursor: 'col-resize',
+          zIndex: 10,
+        }}
+      />
+    </aside>
+  )
+}
+
+function Section({ label, children, color }: { label: string; children: React.ReactNode; color?: string }) {
+  return (
+    <div style={{ padding: '12px 18px', borderBottom: '1px solid #2c313a' }}>
+      <div style={{
+        fontSize: 12, fontWeight: 600, letterSpacing: '0.1em',
+        color: color ?? '#636d83', textTransform: 'uppercase', marginBottom: 8,
+      }}>
+        {label}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function StabilityBar({ value }: { value: number }) {
+  const color = value >= 70 ? '#98c379' : value >= 40 ? '#e5c07b' : '#e06c75'
+  return (
+    <div>
+      <div style={{ height: 6, background: '#2c313a', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{
+          width: `${value}%`, height: '100%',
+          background: color, borderRadius: 3, transition: 'width 400ms ease',
+        }} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+        <span style={{ fontSize: 13, color, fontWeight: 600 }}>{value}%</span>
+        <span style={{ fontSize: 12, color: '#636d83' }}>
+          {value >= 70 ? 'estable' : value >= 40 ? 'degradado' : 'crítico'}
+        </span>
+      </div>
+    </div>
+  )
+}
