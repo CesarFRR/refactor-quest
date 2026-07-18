@@ -5,10 +5,11 @@ import { LevelComplete } from './components/LevelComplete'
 import { LevelSelect } from './components/LevelSelect'
 import { StartMenu } from './components/StartMenu'
 import { LennyAvatar } from './components/LennyAvatar'
+import { ZoneHighlightOverlay } from './components/ZoneHighlightOverlay'
 import { useGameState } from './hooks/useGameState'
 import { useTestRunner } from './hooks/useTestRunner'
 import { levels } from './utils/loadLevel'
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import type { SyntaxMarker } from './types'
 
 const STORAGE_KEY = 'refactorquest-state'
@@ -47,6 +48,10 @@ export default function App() {
     return base
   })
 
+  // ── Syntax markers del editor (para Lenny enojado) ──
+  const [syntaxMarkers, setSyntaxMarkers] = useState<SyntaxMarker[]>([])
+  const hasErrorMarkers = useMemo(() => syntaxMarkers.some(m => m.severity === 'error'), [syntaxMarkers])
+
   // Persistir estado en sessionStorage (sobrevive a F5, se borra al cerrar pestaña)
   useEffect(() => {
     try {
@@ -66,6 +71,8 @@ export default function App() {
   const prevRunning = useRef(running)
   const prevLevelId = useState<number>(currentLevel.id)
   const justChangedLevel = useRef(false)
+  // Lenny se enoja si hay errores de sintaxis y el jugador da a Ejecutar tests
+  const [angryOnTest, setAngryOnTest] = useState(false)
 
   // ── Reset sincrónico al cambiar de nivel (adjust-during-render con useState) ──
   // Limpia results y compileStatus del nivel anterior para que no se reapliquen
@@ -88,8 +95,9 @@ export default function App() {
   }, [])
 
   const handleRunTests = useCallback(() => {
+    setAngryOnTest(hasErrorMarkers)
     runTests(state.code, currentLevel.tests)
-  }, [state.code, currentLevel.tests, runTests])
+  }, [state.code, currentLevel.tests, runTests, hasErrorMarkers])
 
   // ── Capa 2: compilar al cambiar el código (debounce interno del hook) ──
   const handleCodeChange = useCallback((code: string) => {
@@ -99,10 +107,12 @@ export default function App() {
 
   // ── Capa 1 (Monaco) → sincroniza compileStatus si hay errores de sintaxis ──
   const handleMarkersChange = useCallback((markers: SyntaxMarker[]) => {
+    setSyntaxMarkers(markers)
     const errors = markers.filter(m => m.severity === 'error')
     if (errors.length > 0) {
       setCompileStatus('syntax-error', errors[0]?.message, markers)
     } else if (compileStatus === 'syntax-error') {
+      setAngryOnTest(false)
       // Sin errores marcados: el worker lo confirmará con COMPILE_CHECK
       setCompileStatus('idle', undefined, markers)
     }
@@ -266,7 +276,7 @@ export default function App() {
             Nivel {currentLevel.id} — {currentLevel.title}
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div data-zone="header-stats" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Stat label="Tests" value={`${passedCount}/${totalTests}`} />
           <Stat label="Intentos" value={state.attempts} />
           <Stat
@@ -286,7 +296,7 @@ export default function App() {
           running={running}
           locked={state.interactiveLock}
         />
-        <div style={{ position: 'relative', flex: 1 }}>
+        <div data-zone="editor" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <EditorPanel
             code={state.code}
             smells={currentLevel.smells}
@@ -294,18 +304,6 @@ export default function App() {
             onMarkersChange={handleMarkersChange}
             readOnly={state.interactiveLock}
           />
-          {/* Rectángulo de resalte Z-INDEX ALTO sobre el editor */}
-          {state.avatarHighlightLine && state.avatarMessage && (
-            <div style={{
-              position: 'absolute', inset: 0,
-              border: '2px solid rgba(97,175,239,0.4)',
-              borderRadius: 4,
-              pointerEvents: 'none',
-              zIndex: 99999,
-              background: 'rgba(97,175,239,0.04)',
-              boxShadow: 'inset 0 0 40px rgba(97,175,239,0.1), 0 0 30px rgba(97,175,239,0.08)',
-            }} />
-          )}
         </div>
       </main>
 
@@ -336,7 +334,7 @@ export default function App() {
       </footer>
 
       {/* ── Overlay sutil cuando Lenny señala algo ── */}
-      {state.avatarMessage && state.avatarHighlightLine && (
+      {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && (
         <div style={{
           position: 'fixed', inset: 0,
           background: 'rgba(0,0,0,0.08)',
@@ -344,6 +342,12 @@ export default function App() {
           pointerEvents: 'none',
         }} />
       )}
+
+      {/* ── Rectángulo de resalte sobre la zona señalada ── */}
+      <ZoneHighlightOverlay
+        zoneId={state.avatarHighlightZone ?? (state.avatarHighlightLine ? 'editor' : undefined)}
+        visible={!!state.avatarMessage}
+      />
 
       {/* ── Avatar Lenny — asistente flotante abajo-derecha ── */}
       {avatarMode !== 'off' && (
@@ -357,6 +361,7 @@ export default function App() {
           confirmLabel={confirmLabel}
           onInjectGuided={injectLabel ? injectGuidedSmell : undefined}
           injectLabel={injectLabel}
+          angryOnTest={angryOnTest}
         />
       )}
 

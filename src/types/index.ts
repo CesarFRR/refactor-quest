@@ -48,11 +48,31 @@ export type AvatarTrigger =
   | 'test-failed'
   | 'step-confirmed'
 
+/**
+ * IDs de zonas de la UI que el avatar puede señalar con un rectángulo
+ * de resalte (ver ZoneHighlightOverlay).
+ */
+export const ZONE_IDS = {
+  EDITOR:       'editor',
+  MISSION:      'mission',
+  SMELLS_LIST:  'smells-list',
+  STABILITY:    'stability',
+  ENERGY:       'energy',
+  SUGGESTION:   'suggestion',
+  RUN_TESTS:    'run-tests',
+  TEST_RESULTS: 'test-results',
+  HEADER_STATS: 'header-stats',
+} as const
+
+export type ZoneId = (typeof ZONE_IDS)[keyof typeof ZONE_IDS]
+
 /** Un paso del walkthrough guiado por Lenny */
 export interface AvatarStep {
   trigger: AvatarTrigger
   message: string
   highlightLine?: number
+  /** ID de zona de UI a resaltar (misión, smells, botón tests, etc.) */
+  highlightZone?: ZoneId
   /** ID del smell que debe quedar 'fixed' para avanzar (cuando trigger es 'smell-fixed') */
   waitForSmell?: string
   /** Para 'reveal-solution': código que Lenny escribe en el editor en este paso */
@@ -145,6 +165,8 @@ export interface GameState {
   avatarActive: boolean
   avatarMessage?: string
   avatarHighlightLine?: number
+  /** Zona de UI que Lenny señala con rectángulo */
+  avatarHighlightZone?: ZoneId
   /** Zona actual de Lenny (para moverse por el juego) */
   avatarZone: AvatarZone
   /** Si true, el jugador no puede interactuar con editor/panel (bloqueo tutorial) */

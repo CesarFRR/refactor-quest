@@ -25,6 +25,8 @@ interface Props {
   /** Para guided-smell: botón para que Lenny inyecta su refactor */
   onInjectGuided?: () => void
   injectLabel?: string
+  /** Lenny se enoja si hay errores y el jugador da a Ejecutar tests */
+  angryOnTest?: boolean
 }
 
 type Mood = 'idle' | 'talking' | 'pointing' | 'celebrating' | 'sleeping' | 'error'
@@ -34,7 +36,10 @@ function pickMood(
   highlightLine: number | undefined,
   compileStatus: CompileStatus | undefined,
   mode: AvatarMode,
+  angryOnTest?: boolean,
 ): Mood {
+  // Lenny se enoja si hay errores Y el jugador dio a Ejecutar tests
+  if (angryOnTest) return 'error'
   if (compileStatus === 'syntax-error') return 'error'
   // Sleeping SÓLO en modo 'off' (nivel 5). En otros modos, aunque el avatar
   // termine sus pasos, Lenny se queda idle (despierto, parpadeando, sin burbuja).
@@ -76,8 +81,9 @@ export function LennyAvatar({
   confirmLabel,
   onInjectGuided,
   injectLabel,
+  angryOnTest,
 }: Props) {
-  const mood = pickMood(message, highlightLine, compileStatus, mode)
+  const mood = pickMood(message, highlightLine, compileStatus, mode, angryOnTest)
   const [blink, setBlink] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [prevMessage, setPrevMessage] = useState<string | undefined>(message)
@@ -133,34 +139,38 @@ export function LennyAvatar({
   const [eyeTarget, setEyeTarget] = useState({ leftX: 0, leftY: 0, rightX: 0, rightY: 0 })
   const [cursorSeen, setCursorSeen] = useState(false)
   const lennyRef = useRef<HTMLDivElement>(null)
+  const mouseRafRef = useRef(0)
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (mood === 'sleeping' || mood === 'celebrating') return
-    const el = lennyRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const leftCenterX = rect.left + rect.width * 0.31
-    const rightCenterX = rect.left + rect.width * 0.69
-    const eyeCenterY = rect.top + rect.height * 0.54
-    const max = 3.5
-    const clamp = (value: number) => Math.max(-max, Math.min(max, value))
-    const targetForEye = (centerX: number) => {
-      const edx = e.clientX - centerX
-      const edy = e.clientY - eyeCenterY
-      const dist = Math.sqrt(edx * edx + edy * edy)
-      return {
-        x: clamp(edx / Math.max(dist, 1) * max),
-        y: clamp(edy / Math.max(dist, 1) * max),
+    cancelAnimationFrame(mouseRafRef.current)
+    mouseRafRef.current = requestAnimationFrame(() => {
+      const el = lennyRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const leftCenterX = rect.left + rect.width * 0.31
+      const rightCenterX = rect.left + rect.width * 0.69
+      const eyeCenterY = rect.top + rect.height * 0.54
+      const max = 4
+      const clamp = (value: number) => Math.max(-max, Math.min(max, value))
+      const targetForEye = (centerX: number) => {
+        const edx = e.clientX - centerX
+        const edy = e.clientY - eyeCenterY
+        const dist = Math.sqrt(edx * edx + edy * edy)
+        return {
+          x: clamp(edx / Math.max(dist, 1) * max),
+          y: clamp(edy / Math.max(dist, 1) * max),
+        }
       }
-    }
-    const left = targetForEye(leftCenterX)
-    const right = targetForEye(rightCenterX)
-    setEyeTarget({
-      leftX: left.x,
-      leftY: left.y,
-      rightX: right.x,
-      rightY: right.y,
+      const left = targetForEye(leftCenterX)
+      const right = targetForEye(rightCenterX)
+      setEyeTarget({
+        leftX: left.x,
+        leftY: left.y,
+        rightX: right.x,
+        rightY: right.y,
+      })
+      setCursorSeen(true)
     })
-    setCursorSeen(true)
   }, [mood])
 
   useEffect(() => {
@@ -204,6 +214,7 @@ export function LennyAvatar({
 
   const lennyAnim =
     bounce ? 'lenny-bounce 0.4s ease' :
+    angryOnTest ? 'lenny-shake 0.3s ease infinite' :
     mood === 'error' ? 'lenny-shake 0.4s ease infinite' :
     undefined
 
@@ -242,19 +253,20 @@ export function LennyAvatar({
 
       {/* Nubecita a la izquierda de Lenny */}
       {showBubble && (
-        <div style={{
-          background: '#21252b',
-          border: `1px solid ${accent}55`,
-          borderLeft: `3px solid ${accent}`,
-          borderRadius: 8,
-          padding: '8px 12px',
-          maxWidth: 280,
-          minWidth: 180,
-          position: 'relative',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-          pointerEvents: 'auto',
-          animation: 'lenny-bubble-in 0.2s ease',
-        }}>
+          <div style={{
+            backgroundColor: '#1e2229',
+            border: `1px solid ${accent}55`,
+            borderLeft: `3px solid ${accent}`,
+            borderRadius: 8,
+            padding: '8px 12px',
+            maxWidth: 280,
+            minWidth: 180,
+            position: 'relative',
+            opacity: 1,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            pointerEvents: 'auto',
+            animation: 'lenny-bubble-in 0.2s ease',
+          }}>
           {/* Pico de la nubecita apuntando a Lenny (abajo-derecha) */}
           <div style={{
             position: 'absolute',
@@ -273,7 +285,7 @@ export function LennyAvatar({
             borderLeft: `7px solid #21252b`,
           }} />
 
-          <div style={{ fontSize: 14, color: '#abb2bf', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 14, color: '#f2f4f8', lineHeight: 1.5, opacity: 1, fontWeight: 500 }}>
             {mode === 'off' && !message
               ? <span style={{ color: '#4b5263', fontStyle: 'italic' }}>…</span>
               : message}
@@ -337,9 +349,9 @@ export function LennyAvatar({
 function btnStyle(accent: string): React.CSSProperties {
   return {
     padding: '5px 10px',
-    background: 'transparent',
+    background: `${accent}1a`,
     color: accent,
-    border: `1px solid ${accent}66`,
+    border: `1px solid ${accent}55`,
     borderRadius: 4,
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: 12,

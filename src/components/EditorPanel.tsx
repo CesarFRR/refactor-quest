@@ -8,10 +8,14 @@
    noLib=true deshabilita lib.d.ts, wordBasedSuggestions=off
    evita sugerir palabras al azar.
    ============================================================ */
-import Editor, { useMonaco } from '@monaco-editor/react'
+import Editor, { useMonaco, loader } from '@monaco-editor/react'
+import * as monacoPkg from 'monaco-editor'
 import type { editor } from 'monaco-editor'
 import type { CodeSmell, SyntaxMarker } from '../types'
 import { useEffect, useRef } from 'react'
+
+// Usar la copia local de Monaco en lugar de cargar desde CDN
+loader.config({ monaco: monacoPkg })
 
 // Tema One Dark Pro en formato Monaco
 const ONE_DARK_PRO = {

@@ -11,28 +11,64 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "¡Hola! Soy Lenny. Mira el panel izquierdo: no hay smells — el código está limpio. La barra de estabilidad marca 50% porque faltan los tests: aún no sabemos si el código funciona.",
-        "highlightLine": 4,
+        "message": "¡Bienvenido a RefactorQuest! Soy Lenny, tu asistente. Empecemos conociendo el tablero. Esto de arriba es la sección **Misión**: aquí verás el contexto del nivel, por qué el sistema está fallando y qué necesitas arreglar.",
+        "highlightZone": "mission",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Mira, voy a editar el comentario por ti para que veas cómo funciona. Pulsa 'Siguiente paso' y observa el editor.",
-        "highlightLine": 2,
+        "message": "Aquí están los **Smells detectados**. Son fragmentos de código problemáticos: puede haber *críticos* (rojo, urgentes) y *warnings* (amarillo, mejorables). Cada smell consume energía al refactorizarlo. Cuando lo corrijas, aparecerá tachado con un ✓.",
+        "highlightZone": "smells-list",
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "La barra de **Estabilidad del sistema** mide qué tan saludable está el código. Sube al 100% cuando arregles todos los smells y todos los tests pasen. Por ahora está en 50% porque no hemos ejecutado tests.",
+        "highlightZone": "stability",
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "La **Energía disponible** es tu recurso para refactorizar. Cada smell tiene un costo. Si se agota, no podrás seguir — tendrás que reiniciar el nivel. ¡Gastala con cuidado!",
+        "highlightZone": "energy",
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Este es el **Editor de código**. Aquí escribes y modificas el código del sistema. A la izquierda verás el número de línea. Lenny te señalará líneas específicas cuando necesites mirar algo.",
+        "highlightZone": "editor",
+        "zone": "editor"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "En el panel izquierdo está el botón **▶ Ejecutar tests**. Púlsalo para verificar si tu código funciona. Los resultados aparecen justo debajo: ✓ (pasa) o ✗ (falla). ¡Pruébalo cuando quieras!",
+        "highlightZone": "run-tests",
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Y aquí arriba a la derecha van las **Estadísticas**: tests pasados, intentos realizados y estabilidad actual. En la barra inferior verás más detalles: Sintaxis (errores en rojo), Compilación y Fase del nivel.",
+        "highlightZone": "header-stats",
+        "zone": "footer"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Ahora observa cómo funciona: voy a editar el código por ti. Pulsa 'Siguiente'.",
+        "highlightZone": "editor",
         "zone": "editor",
         "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Lenny! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡Ves? El código cambió y la barra inferior dice 'Sintaxis ✓ OK' y 'Compila ✓ listo'. Ahora te toca a ti: pulsa el botón '▶ Ejecutar tests' abajo del todo para verificar que funciona.",
-        "highlightLine": 14,
-        "zone": "footer"
+        "message": "¡El código cambió! Ahora pruébalo tú: busca el botón **▶ Ejecutar tests** y haz clic. Verás el resultado aparecer y la estabilidad subirá — ese es el flujo básico del juego.",
+        "highlightZone": "run-tests",
+        "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡Recuerda! El flujo es: editar código → verificar sintaxis → ejecutar tests → subir estabilidad. Cuando la estabilidad llegue a 100%, el sistema estará completamente estabilizado.",
-        "highlightLine": 14,
-        "zone": "footer"
+        "message": "¡Perfecto! Recuerda el ciclo: 🛠️ editar código → ✅ verificar sintaxis → 🧪 ejecutar tests → 📈 subir estabilidad. Cuando todo esté al 100% y todos los smells arreglados, completarás el nivel. ¡A refactorizar!",
+        "highlightZone": "editor",
+        "zone": "editor"
       }
     ]
   },

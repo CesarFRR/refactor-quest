@@ -36,6 +36,7 @@ function initialState(level: Level): GameState {
     avatarActive: avatarActiveAtStart,
     avatarMessage: firstStep?.trigger === 'level-start' ? firstStep.message : undefined,
     avatarHighlightLine: firstStep?.highlightLine,
+    avatarHighlightZone: firstStep?.highlightZone,
     avatarZone: firstStep?.zone ?? 'bottom-right',
     interactiveLock: firstStep?.interactiveLock ?? false,
   }
@@ -115,6 +116,7 @@ function advanceAvatar(
   avatarStep: number
   avatarMessage?: string
   avatarHighlightLine?: number
+  avatarHighlightZone?: string
   avatarZone: AvatarZone
   interactiveLock: boolean
 } {
@@ -152,6 +154,7 @@ function advanceAvatar(
       avatarStep: step,
       avatarMessage: msg?.message,
       avatarHighlightLine: msg?.highlightLine,
+      avatarHighlightZone: msg?.highlightZone,
       avatarZone: msg?.zone ?? 'bottom-right',
       interactiveLock: msg?.interactiveLock ?? false,
     }
@@ -224,6 +227,7 @@ export function useGameState(level: Level) {
         avatarStep: avatar.avatarStep,
         avatarMessage: avatar.avatarMessage,
         avatarHighlightLine: avatar.avatarHighlightLine,
+        avatarHighlightZone: avatar.avatarHighlightZone,
         avatarZone: avatar.avatarZone,
         interactiveLock: avatar.interactiveLock,
       }
@@ -418,7 +422,7 @@ export function useGameState(level: Level) {
         if (next >= tutorial.steps!.length) {
           return {
             ...prev, code, smellStatus, smellProgress, energy, stability,
-            avatarMessage: undefined, avatarHighlightLine: undefined,
+            avatarMessage: undefined, avatarHighlightLine: undefined, avatarHighlightZone: undefined,
             avatarZone: 'bottom-right' as const, interactiveLock: false,
           }
         }
@@ -428,6 +432,7 @@ export function useGameState(level: Level) {
           avatarStep: next,
           avatarMessage: step.message,
           avatarHighlightLine: step.highlightLine,
+          avatarHighlightZone: step.highlightZone,
           avatarZone: step.zone ?? 'bottom-right',
           interactiveLock: step.interactiveLock ?? false,
         }
@@ -440,6 +445,7 @@ export function useGameState(level: Level) {
           ...prev,
           avatarMessage: undefined,
           avatarHighlightLine: undefined,
+          avatarHighlightZone: undefined,
           avatarZone: 'bottom-right' as const,
           interactiveLock: false,
         }
@@ -450,6 +456,7 @@ export function useGameState(level: Level) {
         avatarStep: next,
         avatarMessage: step.message,
         avatarHighlightLine: step.highlightLine,
+        avatarHighlightZone: step.highlightZone,
         avatarZone: step.zone ?? 'bottom-right',
         interactiveLock: step.interactiveLock ?? false,
       }
@@ -463,6 +470,7 @@ export function useGameState(level: Level) {
       avatarActive: true,
       avatarMessage: message,
       avatarHighlightLine: highlightLine,
+      avatarHighlightZone: undefined,
     }))
     emit({
       type: 'avatar_intervention',
@@ -487,6 +495,7 @@ export function useGameState(level: Level) {
           avatarActive: true,
           avatarMessage: tutorial.steps?.[0]?.message ?? '¿Te atascaste? Prueba extrayendo una función.',
           avatarHighlightLine: tutorial.steps?.[0]?.highlightLine,
+          avatarHighlightZone: undefined,
         }
       })
       emit({

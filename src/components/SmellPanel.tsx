@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { GameState, Level } from '../types'
+import type { GameState, Level, ZoneId } from '../types'
 
 interface Props {
   level: Level
@@ -92,13 +92,23 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
       )}
       {/* ── Contenido scrolleable ── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <Section label="Misión" color="#e5c07b">
+        <Section label="Misión" color="#e5c07b" zoneId="mission">
           <p style={{ margin: 0, color: '#abb2bf', fontSize: 15, lineHeight: 1.6 }}>
             {level.narrative}
           </p>
         </Section>
 
-        <Section label="Smells detectados">
+        <Section label="Smells detectados" zoneId="smells-list">
+          <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
+            {(() => {
+              const crit = level.smells.filter(s => s.severity === 'critical').length
+              const warn = level.smells.filter(s => s.severity === 'warning').length
+              const critFixed = level.smells.filter(s => s.severity === 'critical' && state.smellStatus[s.id] === 'fixed').length
+              const warnFixed = level.smells.filter(s => s.severity === 'warning' && state.smellStatus[s.id] === 'fixed').length
+              return <><span style={{ fontSize: 12, color: '#e06c75', fontWeight: 600 }}>{crit - critFixed} críticos</span>
+                <span style={{ fontSize: 12, color: '#e5c07b', fontWeight: 600 }}>{warn - warnFixed} warnings</span></>
+            })()}
+          </div>
           {level.smells.map((smell) => {
             const status = state.smellStatus[smell.id]
             const progress = state.smellProgress[smell.id] ?? 0
@@ -139,11 +149,11 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
           })}
         </Section>
 
-        <Section label="Estabilidad del sistema">
+        <Section label="Estabilidad del sistema" zoneId="stability">
           <StabilityBar value={state.stability} />
         </Section>
 
-        <Section label="Energía disponible">
+        <Section label="Energía disponible" zoneId="energy">
           <span style={{
             fontSize: 15, fontWeight: 600,
             color: state.energy <= 2 ? '#e06c75' : state.energy <= 5 ? '#e5c07b' : '#98c379',
@@ -153,7 +163,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
         </Section>
 
         {level.smells.some(s => state.smellStatus[s.id] !== 'fixed') && (
-          <Section label={`Sugerencia ${codeChanged ? '' : '— opcional'}`}>
+          <Section label={`Sugerencia ${codeChanged ? '' : '— opcional'}`} zoneId="suggestion">
             <div style={{
               background: '#2c313a',
               borderRadius: 5, padding: '8px 10px',
@@ -181,6 +191,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
           </p>
         )}
         <button
+          data-zone="run-tests"
           onClick={onRunTests}
           disabled={!canRun}
           style={{
@@ -203,7 +214,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
         </button>
 
         {state.testResults.length > 0 && (
-          <div style={{ marginTop: 8 }}>
+          <div data-zone="test-results" style={{ marginTop: 8 }}>
             {state.testResults.map((r) => (
               <div key={r.testId} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 4 }}>
                 <span style={{ color: r.passed ? '#98c379' : '#e06c75', flexShrink: 0, fontSize: 14 }}>
@@ -245,9 +256,9 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
   )
 }
 
-function Section({ label, children, color }: { label: string; children: React.ReactNode; color?: string }) {
+function Section({ label, children, color, zoneId }: { label: string; children: React.ReactNode; color?: string; zoneId?: ZoneId }) {
   return (
-    <div style={{ padding: '12px 18px', borderBottom: '1px solid #2c313a' }}>
+    <div {...(zoneId ? { 'data-zone': zoneId } : {})} style={{ padding: '12px 18px', borderBottom: '1px solid #2c313a' }}>
       <div style={{
         fontSize: 12, fontWeight: 600, letterSpacing: '0.1em',
         color: color ?? '#636d83', textTransform: 'uppercase', marginBottom: 8,
