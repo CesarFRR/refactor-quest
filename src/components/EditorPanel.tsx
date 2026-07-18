@@ -61,8 +61,8 @@ interface Props {
 export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete }: Props) {
   const monaco = useMonaco()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
-  const smellDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
-  const avatarDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
+  const smellDecoIds = useRef<string[]>([])
+  const avatarDecoIds = useRef<string[]>([])
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (!avatarInjecting || !injectTarget || !editorRef.current || !monaco) {
@@ -156,10 +156,6 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
   useEffect(() => {
     if (!monaco || !editorRef.current) return
     const ed = editorRef.current
-    if (smellDecoRef.current) {
-      smellDecoRef.current.clear()
-      smellDecoRef.current = null
-    }
     const decorations = smells.map((smell) => ({
       range: new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1),
       options: {
@@ -171,11 +167,11 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
       },
     }))
-    smellDecoRef.current = ed.createDecorationsCollection(decorations)
+    smellDecoIds.current = ed.deltaDecorations(smellDecoIds.current, decorations)
     return () => {
-      if (smellDecoRef.current) {
-        smellDecoRef.current.clear()
-        smellDecoRef.current = null
+      if (smellDecoIds.current.length > 0) {
+        ed.deltaDecorations(smellDecoIds.current, [])
+        smellDecoIds.current = []
       }
     }
   }, [monaco, smells])
@@ -184,11 +180,13 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
   useEffect(() => {
     if (!monaco || !editorRef.current) return
     const ed = editorRef.current
-    if (avatarDecoRef.current) {
-      avatarDecoRef.current.clear()
-      avatarDecoRef.current = null
+    if (!avatarHighlightLine) {
+      if (avatarDecoIds.current.length > 0) {
+        ed.deltaDecorations(avatarDecoIds.current, [])
+        avatarDecoIds.current = []
+      }
+      return
     }
-    if (!avatarHighlightLine) return
     const deco = [{
       range: new monaco.Range(avatarHighlightLine, 1, avatarHighlightLine, 1),
       options: {
@@ -198,11 +196,11 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         overviewRuler: { color: '#61afef', position: 4 },
       },
     }]
-    avatarDecoRef.current = ed.createDecorationsCollection(deco)
+    avatarDecoIds.current = ed.deltaDecorations(avatarDecoIds.current, deco)
     return () => {
-      if (avatarDecoRef.current) {
-        avatarDecoRef.current.clear()
-        avatarDecoRef.current = null
+      if (avatarDecoIds.current.length > 0) {
+        ed.deltaDecorations(avatarDecoIds.current, [])
+        avatarDecoIds.current = []
       }
     }
   }, [monaco, avatarHighlightLine])
