@@ -113,6 +113,17 @@ export default function App() {
     setCompileStatus(compileStatus, syntaxError)
   }, [compileStatus, syntaxError, setCompileStatus])
 
+  // Silenciar errores internos de Monaco (cancelación de promesas al cambiar modelo)
+  useEffect(() => {
+    const handler = (e: PromiseRejectionEvent) => {
+      if (e.reason?.type === 'cancelation' && e.reason?.msg === 'operation is manually canceled') {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('unhandledrejection', handler)
+    return () => window.removeEventListener('unhandledrejection', handler)
+  }, [])
+
   // ── Reset al cambiar de nivel: side-effects + refs (no durante render) ──
   useEffect(() => {
     prevRunning.current = false
