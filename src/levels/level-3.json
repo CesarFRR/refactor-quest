@@ -1,7 +1,7 @@
 {
   "id": 3,
   "title": "Duplicado en boletas de nómina",
-  "narrative": "El sistema imprime boletas para empleados y contratistas. Alguien copió-pego el bloque de formateo en las dos funciones. Ahora hay que cambiar el mismo código dos veces. Extrae una función compartida. Lupa te sugiere sólo si te trabas.",
+  "narrative": "El sistema imprime boletas para empleados y contratistas. Alguien copió-pego el bloque de formateo en las dos funciones. Ahora hay que cambiar el mismo código dos veces. Extrae una función compartida. Codi te sugiere sólo si te trabas.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "payroll",
@@ -13,7 +13,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "**Duplicate Code**. Ay, el copy-paste. El peor enemigo del programador. Mira esas dos funciones: GENERAN LA MISMA BOLETA. Alguien hizo copy-paste y ahora hay que cambiar el mismo código en dos sitios. Como cuando arreglas un bug y aparece el mismo bug en otra función. Me hierve la sangre. Crea formatBoleta() compartida y úsala desde ambas.",
+        "message": "**Duplicate Code**. Ay, el copy-paste. Mira esas dos funciones: algo está mal cuando ves el MISMO bloque de código dos veces. Alguien hizo copy-paste y ahora hay que cambiar lo mismo en dos sitios. Como arreglas un bug y aparece el mismo bug en otra función. Me hierve la sangre. Crea formatBoleta() y úsala desde ambas.",
         "highlightLine": 5,
         "zone": "editor"
       },

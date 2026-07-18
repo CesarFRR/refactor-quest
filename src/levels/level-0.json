@@ -1,7 +1,7 @@
 {
   "id": 0,
   "title": "Tu primer turno",
-  "narrative": "Bienvenido a RefactorQuest. Este código ya funciona — no tienes que arreglar nada. Sólo quieres aprender el flujo: editar código, ejecutar tests y leer el panel. Lupa te guía paso a paso.",
+  "narrative": "Bienvenido a RefactorQuest. Este código ya funciona — no tienes que arreglar nada. Sólo quieres aprender el flujo: editar código, ejecutar tests y leer el panel. Codi te guía paso a paso.",
   "energyBudget": 10,
   "maxAttempts": 99,
   "domain": "billing",
@@ -11,7 +11,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "¡Hola! Soy **Lupa**. Llevo años en las trincheras del código heredado y créeme: he visto cosas que no creerías. Este es RefactorQuest, donde aprenderás a oler el código podrido y limpiarlo antes de que se coma vivo al proyecto.",
+        "message": "¡Hola! Soy **Codi**. Llevo años en las trincheras del código heredado y créeme: he visto cosas **increíbles** — y no siempre buenas. Este es RefactorQuest, donde aprenderás a oler el código podrido y limpiarlo antes de que se coma vivo al proyecto.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },
@@ -29,7 +29,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Aquí, los **Smells detectados**. Son代码 que apesta — perdón, código con problemas. Los *críticos* (rojo) son incendios activos. Los *warnings* (amarillo) son goteras. Ambos consumen energía arreglarlos. Cuando lo logres, aparecen tachados con ✓. Es catártico.",
+        "message": "Aquí, los **Smells detectados**. Código con problemas. Los **críticos** (rojo) son incendios activos. Los **warnings** (amarillo) son goteras. Ambos consumen energía arreglarlos. Cuando lo logres, aparecen tachados con ✓. Es catártico.",
         "highlightZone": "smells-list",
         "zone": "panel"
       },
@@ -68,7 +68,7 @@
         "message": "Mira cómo se hace: voy a editar el código por ti. Pulsa 'Siguiente' y verás magia.",
         "highlightZone": "editor",
         "zone": "editor",
-        "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Lupa! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
+        "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Codi! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
       },
       {
         "trigger": "step-confirmed",

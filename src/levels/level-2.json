@@ -1,7 +1,7 @@
 {
   "id": 2,
   "title": "Función monstruo en nómina",
-  "narrative": "calcularLiquidacion hace todo: bruto, extras, retención, salud, pensión, neto y boleta formateada. 30 líneas en una sola función. Nadie se atreve a tocarla. Divídela en funciones pequeñas con una sola responsabilidad. Lupa te guía.",
+  "narrative": "calcularLiquidacion hace todo: bruto, extras, retención, salud, pensión, neto y boleta formateada. 30 líneas en una sola función. Nadie se atreve a tocarla. Divídela en funciones pequeñas con una sola responsabilidad. Codi te guía.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "payroll",
@@ -11,7 +11,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "**Long Method**. Ufff, esta me duele. calcularLiquidacion hace de todo: bruto, extras, retención, salud, pensión, neto, formatea boleta... 30 LÍNEAS. He visto funciones así en producción y son como cajas de Pandora: nadie sabe qué hace cada parte. Vamos a dividir esa bestia.",
+        "message": "**Long Method**. Ufff, esta me duele. Revisa esa función: calcularLiquidacion hace de todo — bruto, extras, retención, salud, pensión, neto, formatea boleta... 30 LÍNEAS. He visto funciones así en producción y son cajas de Pandora: nadie sabe qué hace cada parte. Vamos a dividir esa bestia.",
         "highlightLine": 4,
         "zone": "panel"
       },

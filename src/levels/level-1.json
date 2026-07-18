@@ -1,7 +1,7 @@
 {
   "id": 1,
   "title": "Números mágicos en nómina",
-  "narrative": "El cálculo de salario tiene tasas esparcidas por todas partes: 0.04 para salud, 0.04 para pensión... nadie recuerda qué significa cada número. Sácalos a constantes con nombre. Lupa te guía paso a paso.",
+  "narrative": "El cálculo de salario tiene tasas esparcidas por todas partes: 0.04 para salud, 0.04 para pensión... nadie recuerda qué significa cada número. Sácalos a constantes con nombre. Codi te guía paso a paso.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "payroll",
@@ -11,7 +11,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "Primer refactor de verdad. **Magic Numbers**. Ay, los odio. Esos 0.04, 0.04, 0.04... ¿cuál es salud, cuál es pensión? NADIE LO SABE. Una vez debuggeé 3 horas por un 0.03 que debía ser 0.04. Ponles nombre. Por tu salud mental.",
+        "message": "Primer refactor de verdad. **Magic Numbers**. No entiendo por qué alguien pondría números sueltos así. Esos 0.04, 0.04, 0.04... ¿cuál es salud, cuál es pensión? NADIE LO SABE. Una vez debuggeé 3 horas por un 0.03 que debía ser 0.04. Ponles nombre. Por tu salud mental.",
         "highlightLine": 5,
         "zone": "panel"
       },

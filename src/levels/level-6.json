@@ -1,7 +1,7 @@
 {
   "id": 6,
   "title": "Sistema de facturación crítico",
-  "narrative": "El sistema de facturación lleva 3 años sin refactoring. Los tests empiezan a fallar. Tu misión: estabilizarlo. Lupa te echará una mano con el smell más duro.",
+  "narrative": "El sistema de facturación lleva 3 años sin refactoring. Los tests empiezan a fallar. Tu misión: estabilizarlo. Codi te echará una mano con el smell más duro.",
   "energyBudget": 10,
   "maxAttempts": 3,
   "domain": "billing",
@@ -9,11 +9,11 @@
     "avatarMode": "guided-smell",
     "autoRunTests": false,
     "guidedSmellId": "long-method",
-    "guidedInjection": "// Sistema de facturación — v0.2.0 (Lupa dividió processOrder)\n// Los números mágicos siguen ahí — tu turno.\n\nfunction calcTotal(items) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  return total;\n}\n\nfunction calcDiscount(total) {\n  if (total > 1000) {\n    return total * 0.15;\n  }\n  if (total > 500) {\n    return total * 0.08;\n  }\n  return 0;\n}\n\nfunction calcTax(total) {\n  return total * 0.19;\n}\n\nfunction formatSummary(total, tax, discount, customerId) {\n  let s = '';\n  s = s + 'Cliente: ' + customerId + '\\\\n';\n  s = s + 'Subtotal: $' + (total - tax).toFixed(2) + '\\\\n';\n  s = s + 'IVA (19%): $' + tax.toFixed(2) + '\\\\n';\n  s = s + 'Total: $' + total.toFixed(2) + '\\\\n';\n  if (discount > 0) {\n    s = s + 'Descuento aplicado: $' + discount.toFixed(2) + '\\\\n';\n  }\n  return s;\n}\n\nfunction processOrder(items, customerId) {\n  const total = calcTotal(items);\n  const discount = calcDiscount(total);\n  const subtotal = total - discount;\n  const tax = calcTax(subtotal);\n  const finalTotal = subtotal + tax;\n  const summary = formatSummary(finalTotal, tax, discount, customerId);\n  return { total: finalTotal, summary, tax, discount };\n}\n",
+    "guidedInjection": "// Sistema de facturación — v0.2.0 (Codi dividió processOrder)\n// Los números mágicos siguen ahí — tu turno.\n\nfunction calcTotal(items) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  return total;\n}\n\nfunction calcDiscount(total) {\n  if (total > 1000) {\n    return total * 0.15;\n  }\n  if (total > 500) {\n    return total * 0.08;\n  }\n  return 0;\n}\n\nfunction calcTax(total) {\n  return total * 0.19;\n}\n\nfunction formatSummary(total, tax, discount, customerId) {\n  let s = '';\n  s = s + 'Cliente: ' + customerId + '\\\\n';\n  s = s + 'Subtotal: $' + (total - tax).toFixed(2) + '\\\\n';\n  s = s + 'IVA (19%): $' + tax.toFixed(2) + '\\\\n';\n  s = s + 'Total: $' + total.toFixed(2) + '\\\\n';\n  if (discount > 0) {\n    s = s + 'Descuento aplicado: $' + discount.toFixed(2) + '\\\\n';\n  }\n  return s;\n}\n\nfunction processOrder(items, customerId) {\n  const total = calcTotal(items);\n  const discount = calcDiscount(total);\n  const subtotal = total - discount;\n  const tax = calcTax(subtotal);\n  const finalTotal = subtotal + tax;\n  const summary = formatSummary(finalTotal, tax, discount, customerId);\n  return { total: finalTotal, summary, tax, discount };\n}\n",
     "steps": [
       {
         "trigger": "level-start",
-        "message": "El nivel final. **3 smells** en un sistema legacy de facturación que ha sobrevivido a 3 equipos distintos y una reestructuración. Este código tiene historia. Algunas partes las escribí yo hace años y... bueno, no es mi mejor trabajo. **Long Method**, **Magic Numbers** y **Duplicate Code**. El Long Method es el más denso; si quieres, puedo dividir processOrder por ti. Pulsa 'Deja que Cody ayude' y lo hago. Los otros dos son tuyos.",
+        "message": "El nivel final. **3 smells** en un sistema legacy que ha sobrevivido a 3 equipos y una reestructuración. Es increíble que este código siga en pie. Algunas partes las escribí yo hace años y... bueno, no es mi mejor trabajo. **Long Method**, **Magic Numbers** y **Duplicate Code**. El Long Method es el más denso; si quieres, puedo dividir processOrder por ti. Pulsa 'Deja que Codi ayude' y lo hago. Los otros dos son tuyos.",
         "highlightLine": 4,
         "zone": "editor"
       }

@@ -1,7 +1,7 @@
 {
   "id": 5,
   "title": "Solo en el mar",
-  "narrative": "Liquidación de contratos: una función gigante que calcula y formatea, con el bloque de boleta duplicado. Dos smells, sin ayuda. Lupa se queda mudo observando. Demuestra lo que aprendiste. Los tests se ejecutan sólo cuando tú decidas.",
+  "narrative": "Liquidación de contratos: una función gigante que calcula y formatea, con el bloque de boleta duplicado. Dos smells, sin ayuda. Codi se queda mudo observando. Demuestra lo que aprendiste. Los tests se ejecutan sólo cuando tú decidas.",
   "energyBudget": 14,
   "maxAttempts": 6,
   "domain": "payroll",

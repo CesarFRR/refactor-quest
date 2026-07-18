@@ -1,7 +1,7 @@
 {
   "id": 4,
   "title": "Dos problemas en la planilla",
-  "narrative": "procesarPlanilla calcula el salario de cada empleado en un bucle, con tasas mágicas y toda la lógica metida en una sola función gigante. Hay DOS smells: Magic Numbers y Long Method. Resuélvelos en el orden que prefieras. Lupa sugiere sólo si te trabas.",
+  "narrative": "procesarPlanilla calcula el salario de cada empleado en un bucle, con tasas mágicas y toda la lógica metida en una sola función gigante. Hay DOS smells: Magic Numbers y Long Method. Resuélvelos en el orden que prefieras. Codi sugiere sólo si te trabas.",
   "energyBudget": 12,
   "maxAttempts": 6,
   "domain": "payroll",

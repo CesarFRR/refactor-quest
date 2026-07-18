@@ -260,7 +260,7 @@ export default function App() {
     undefined
 
   const injectLabel =
-    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Cody ayude 🤝' : undefined
+    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Codi ayude 🤝' : undefined
 
   if (screen === 'menu') {
     return <StartMenu onStart={() => setScreen('select')} levelCount={levels.length} />
