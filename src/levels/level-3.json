@@ -1,7 +1,7 @@
 {
   "id": 3,
   "title": "Duplicado en boletas de nómina",
-  "narrative": "El sistema imprime boletas para empleados y contratistas. Alguien copió-pego el bloque de formateo en las dos funciones. Ahora hay que cambiar el mismo código dos veces. Extrae una función compartida. Lenny te sugiere sólo si te trabas.",
+  "narrative": "El sistema imprime boletas para empleados y contratistas. Alguien copió-pego el bloque de formateo en las dos funciones. Ahora hay que cambiar el mismo código dos veces. Extrae una función compartida. Lupa te sugiere sólo si te trabas.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "payroll",

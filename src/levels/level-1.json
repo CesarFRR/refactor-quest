@@ -1,7 +1,7 @@
 {
   "id": 1,
   "title": "Números mágicos en nómina",
-  "narrative": "El cálculo de salario tiene tasas esparcidas por todas partes: 0.04 para salud, 0.04 para pensión... nadie recuerda qué significa cada número. Sácalos a constantes con nombre. Lenny te guía paso a paso.",
+  "narrative": "El cálculo de salario tiene tasas esparcidas por todas partes: 0.04 para salud, 0.04 para pensión... nadie recuerda qué significa cada número. Sácalos a constantes con nombre. Lupa te guía paso a paso.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "payroll",
