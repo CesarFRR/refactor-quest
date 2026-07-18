@@ -38,8 +38,8 @@
       "name": "Long Method",
       "severity": "critical",
       "description": "calcularLiquidacion hace demasiado: bruto, descuentos, neto, boleta. Divídela en funciones pequeñas (calcBruto, calcDescuentos, formatBoleta).",
-      "lineStart": 4,
-      "lineEnd": 23,
+      "lineStart": 3,
+      "lineEnd": 22,
       "energyCost": 4
     }
   ],

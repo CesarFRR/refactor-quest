@@ -53,7 +53,7 @@ export function ZoneHighlightOverlay({ zoneId, visible }: Props) {
       left: rect.left,
       width: rect.width,
       height: rect.height,
-      zIndex: 99999,
+      zIndex: 150,
       pointerEvents: 'none',
       border: '2px solid rgba(97,175,239,0.45)',
       borderRadius: 4,
