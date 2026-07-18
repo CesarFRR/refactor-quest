@@ -52,21 +52,57 @@ interface Props {
   readOnly?: boolean
   /** Cody está escribiendo código (animación) */
   avatarInjecting?: boolean
+  /** Código destino que Cody está tipeando */
+  injectTarget?: string
+  /** Se llama cuando la animación de tipeo termina */
+  onInjectionComplete?: () => void
 }
 
-export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting }: Props) {
+export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete }: Props) {
   const monaco = useMonaco()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const smellDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
   const avatarDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (!avatarInjecting || !injectTarget || !editorRef.current || !monaco) {
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current)
+        typingTimerRef.current = null
+      }
+      return
+    }
+    const model = editorRef.current.getModel()
+    if (!model) return
+    // Tipeo por bloques vía API de Monaco
+    const CHUNK = 8
+    let pos = 0
+    const typeChunk = () => {
+      const next = Math.min(pos + CHUNK, injectTarget.length)
+      model.setValue(injectTarget.slice(0, next))
+      pos = next
+      if (pos >= injectTarget.length) {
+        typingTimerRef.current = null
+        onInjectionComplete?.()
+        return
+      }
+      const delay = injectTarget.slice(pos - CHUNK, next).includes('\n') ? 80 : 50 + Math.random() * 30
+      typingTimerRef.current = setTimeout(typeChunk, delay)
+    }
+    typingTimerRef.current = setTimeout(typeChunk, 150)
+    return () => {
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current)
+        typingTimerRef.current = null
+      }
+    }
+  }, [avatarInjecting, injectTarget, onInjectionComplete, monaco])
 
   // Registrar tema One Dark Pro cuando Monaco esté listo
   useEffect(() => {
     if (!monaco) return
     monaco.editor.defineTheme('one-dark-pro', ONE_DARK_PRO)
     monaco.editor.setTheme('one-dark-pro')
-    // Limitar autocompletado: usar el API de typescript si está disponible.
-    // En algunas versiones de Monaco este API está deprecado, por eso el cast.
     const ts = (monaco.languages as unknown as {
       typescript?: {
         javascriptDefaults?: {
@@ -117,32 +153,23 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
   }, [monaco, onMarkersChange])
 
   // Decoraciones: subrayados ondulados sobre los smells.
-  // El hoverMessage va al glyph margin (no a la línea) para NO competir
-  // con los hover de errores de sintaxis de Monaco en el código mismo.
   useEffect(() => {
     if (!monaco || !editorRef.current) return
     const ed = editorRef.current
-
-    // Limpiar decoraciones anteriores (evita acumulación)
     if (smellDecoRef.current) {
       smellDecoRef.current.clear()
       smellDecoRef.current = null
     }
-
     const decorations = smells.map((smell) => ({
       range: new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1),
       options: {
         isWholeLine: true,
-        className:
-          smell.severity === 'critical' ? 'smell-crit-line' : 'smell-warn-line',
-        glyphMarginClassName:
-          smell.severity === 'critical' ? 'smell-crit-glyph' : 'smell-warn-glyph',
+        className: 'smell-line',
+        glyphMarginClassName: 'smell-glyph',
         glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
       },
     }))
-
     smellDecoRef.current = ed.createDecorationsCollection(decorations)
-
     return () => {
       if (smellDecoRef.current) {
         smellDecoRef.current.clear()
@@ -151,18 +178,15 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
     }
   }, [monaco, smells])
 
-  // Resaltar línea señalada por el avatar (para guiar la mirada del jugador)
+  // Resaltar línea señalada por el avatar
   useEffect(() => {
     if (!monaco || !editorRef.current) return
     const ed = editorRef.current
-
     if (avatarDecoRef.current) {
       avatarDecoRef.current.clear()
       avatarDecoRef.current = null
     }
-
     if (!avatarHighlightLine) return
-
     const deco = [{
       range: new monaco.Range(avatarHighlightLine, 1, avatarHighlightLine, 1),
       options: {
@@ -173,7 +197,6 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
       },
     }]
     avatarDecoRef.current = ed.createDecorationsCollection(deco)
-
     return () => {
       if (avatarDecoRef.current) {
         avatarDecoRef.current.clear()
@@ -185,9 +208,15 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
   return (
     <div style={{
       flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative',
-      transition: 'filter 1.2s ease',
     }}>
-      {readOnly && (
+      {avatarInjecting && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          zIndex: 100,
+          pointerEvents: 'none',
+        }} />
+      )}
+      {readOnly && !avatarInjecting && (
         <div style={{
           position: 'absolute', inset: 0,
           background: 'rgba(0,0,0,0.3)',
@@ -195,33 +224,17 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
           pointerEvents: 'none',
         }} />
       )}
-      {avatarInjecting && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          zIndex: 99,
-          pointerEvents: 'none',
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end',
-          padding: '12px 16px',
-        }}>
-          <span style={{
-            fontSize: 12, color: '#61afef', fontWeight: 500,
-            background: 'rgba(97,175,239,0.1)',
-            padding: '4px 10px', borderRadius: 4,
-            letterSpacing: '0.05em',
-          }}>
-            ⌨ escribiendo…
-          </span>
-        </div>
-      )}
       <Editor
         height="100%"
         defaultLanguage="javascript"
-        value={code}
+        value={avatarInjecting ? undefined : code}
         theme="one-dark-pro"
         onMount={(ed) => { editorRef.current = ed }}
-        onChange={(v) => onChange(v ?? '')}
+        onChange={(v) => {
+          if (!avatarInjecting) onChange(v ?? '')
+        }}
         options={{
-          readOnly: readOnly ?? false,
+          readOnly: readOnly || avatarInjecting || false,
           fontSize: 15,
           lineHeight: 24,
           fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -234,8 +247,6 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
           cursorBlinking: 'solid',
           tabSize: 2,
           wordWrap: 'on',
-          // Capa 1 — diagnóstico en tiempo real.
-          // Sugerencias limitadas: no sugerir APIs nativas ni palabras al azar.
           'semanticHighlighting.enabled': true,
           quickSuggestions: { other: false, comments: false, strings: false },
           suggestOnTriggerCharacters: false,
@@ -246,7 +257,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
             showSnippets: false,
             showClasses: false,
             showFunctions: false,
-            showVariables: true,  // sólo variables del código actual
+            showVariables: true,
             showModules: false,
             showKeywords: false,
             showValues: false,
@@ -256,7 +267,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
             showFields: false,
             showEnums: false,
             showEnumMembers: false,
-            showMethods: false,   // sin métodos nativos
+            showMethods: false,
             showProperties: false,
             showColors: false,
             showFiles: false,

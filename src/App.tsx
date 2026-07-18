@@ -64,7 +64,7 @@ export default function App() {
   }, [screen, currentLevelIndex, unlockedLevels])
   const currentLevel = levels[currentLevelIndex]
   const { state, updateCode, applyTestResults, levelCompleted, loadSolution, resetLevel,
-          setCompileStatus, injectGuidedSmell, confirmAvatarStep } =
+          setCompileStatus, injectGuidedSmell, confirmAvatarStep, completeInjection } =
     useGameState(currentLevel)
   const { results, running, compileStatus, syntaxError, syntaxErrorLine,
           runTests, compileCode, clearResults, clearCompile, resetAll } = useTestRunner()
@@ -73,6 +73,30 @@ export default function App() {
   const justChangedLevel = useRef(false)
   // Cody se enoja si hay errores de sintaxis y el jugador da a Ejecutar tests
   const [angryOnTest, setAngryOnTest] = useState(false)
+
+  // ── Persistencia del código en memoria por nivel ──
+  const savedCodeByLevel = useRef<Record<number, string>>({})
+  const completedLevelIds = useRef<Set<number>>(new Set())
+  // Determinar el nivel "cabeza": el primero no-completado
+  const headLevelId = useMemo(() => {
+    for (const l of levels) {
+      if (!completedLevelIds.current.has(l.id)) return l.id
+    }
+    return levels[levels.length - 1]?.id
+  }, [levelCompleted]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Guardar código solo del nivel cabeza (el que el jugador está superando)
+  useEffect(() => {
+    if (currentLevel.id === headLevelId && !completedLevelIds.current.has(currentLevel.id)) {
+      savedCodeByLevel.current[currentLevel.id] = state.code
+    }
+  }, [state.code, currentLevel.id, headLevelId])
+  // Marcar nivel como completado y limpiar su código guardado
+  useEffect(() => {
+    if (levelCompleted) {
+      completedLevelIds.current.add(currentLevel.id)
+      delete savedCodeByLevel.current[currentLevel.id]
+    }
+  }, [levelCompleted, currentLevel.id])
 
   // ── Reset sincrónico al cambiar de nivel (adjust-during-render con useState) ──
   // Limpia results y compileStatus del nivel anterior para que no se reapliquen
@@ -104,6 +128,19 @@ export default function App() {
     updateCode(code)
     compileCode(code)
   }, [updateCode, compileCode])
+
+  const handleInjectionComplete = useCallback(() => {
+    completeInjection()
+    if (lastInjectTargetRef.current) {
+      compileCode(lastInjectTargetRef.current)
+    }
+  }, [completeInjection, compileCode])
+
+  const lastInjectTargetRef = useRef<string | undefined>()
+  // Mantener sincronizado con el injectTarget del estado
+  if (state.injectTarget !== undefined) {
+    lastInjectTargetRef.current = state.injectTarget
+  }
 
   // ── Capa 1 (Monaco) → sincroniza compileStatus si hay errores de sintaxis ──
   const handleMarkersChange = useCallback((markers: SyntaxMarker[]) => {
@@ -139,11 +176,16 @@ export default function App() {
     prevRunning.current = false
     justChangedLevel.current = true
     resetAll()  // termina worker, cancela timers, limpia seq
-    // Compilar el código inicial para que el estado de sintaxis sea correcto
-    // desde el primer momento (evita que Monaco reporte errores transitorios
-    // que nunca se rescatan porque nadie llama compileCode tras el mount).
-    compileCode(currentLevel.initialCode)
-  }, [currentLevel, resetAll, compileCode])
+    const initialCode = (!completedLevelIds.current.has(currentLevel.id) && savedCodeByLevel.current[currentLevel.id])
+      ?? currentLevel.initialCode
+    // Compilar el código inicial (restaurado o fresh) para que el estado de
+    // sintaxis sea correcto desde el primer momento
+    compileCode(initialCode)
+    // Restaurar código guardado si existe y el nivel no está completado
+    if (initialCode !== currentLevel.initialCode) {
+      updateCode(initialCode)
+    }
+  }, [currentLevel, resetAll, compileCode, updateCode])
 
   // ── Aplicar resultados cuando terminan ──
   // Guard: sólo aplica si los test ids coinciden con los del nivel actual,
@@ -305,6 +347,8 @@ export default function App() {
             onMarkersChange={handleMarkersChange}
             readOnly={state.interactiveLock}
             avatarInjecting={state.avatarInjecting}
+            injectTarget={state.injectTarget}
+            onInjectionComplete={handleInjectionComplete}
           />
         </div>
       </main>
@@ -336,7 +380,7 @@ export default function App() {
       </footer>
 
       {/* ── Cinematic blur: difumina y BLOQUEA todo excepto Cody ── */}
-      {state.avatarCinematicBlur && (
+      {state.avatarCinematicBlur && !levelCompleted && (
         <div style={{
           position: 'fixed', inset: 0,
           zIndex: 100,
@@ -348,7 +392,7 @@ export default function App() {
       )}
 
       {/* ── Overlay sutil cuando Cody señala algo ── */}
-      {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && (
+      {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && !levelCompleted && (
         <div style={{
           position: 'fixed', inset: 0,
           background: 'rgba(0,0,0,0.08)',
@@ -357,14 +401,14 @@ export default function App() {
         }} />
       )}
 
-      {/* ── Rectángulo de resalte sobre la zona señalada (oculto durante blur) ── */}
+      {/* ── Rectángulo de resalte sobre la zona señalada (oculto durante blur o level complete) ── */}
       <ZoneHighlightOverlay
         zoneId={state.avatarHighlightZone ?? (state.avatarHighlightLine ? 'editor' : undefined)}
-        visible={!!state.avatarMessage && !state.avatarCinematicBlur}
+        visible={!!state.avatarMessage && !state.avatarCinematicBlur && !levelCompleted}
       />
 
-      {/* ── Avatar Cody — asistente flotante abajo-derecha ── */}
-      {avatarMode !== 'off' && (
+      {/* ── Avatar Cody — asistente flotante abajo-derecha (oculto al completar nivel) ── */}
+      {avatarMode !== 'off' && !levelCompleted && (
         <CodyAvatar
           mode={avatarMode}
           message={state.avatarMessage}
@@ -376,6 +420,7 @@ export default function App() {
           onInjectGuided={injectLabel ? injectGuidedSmell : undefined}
           injectLabel={injectLabel}
           angryOnTest={angryOnTest}
+          avatarInjecting={state.avatarInjecting}
         />
       )}
 

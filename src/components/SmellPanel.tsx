@@ -100,62 +100,51 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
 
         <Section label="Smells detectados" zoneId="smells-list">
           {(() => {
-            // Agrupar smells por nombre y contar
-            const groups: Record<string, { count: number; fixed: number; severity: string }> = {}
+            // Agrupar smells por nombre
+            const groups: Record<string, { smells: typeof level.smells; severity: 'critical' | 'warning' }> = {}
             for (const s of level.smells) {
-              if (!groups[s.name]) groups[s.name] = { count: 0, fixed: 0, severity: s.severity }
-              groups[s.name].count++
-              if (state.smellStatus[s.id] === 'fixed') groups[s.name].fixed++
+              if (!groups[s.name]) groups[s.name] = { smells: [], severity: s.severity }
+              groups[s.name].smells.push(s)
             }
-            return <div style={{ display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
-              {Object.entries(groups).map(([name, g]) => {
-                const remaining = g.count - g.fixed
-                if (remaining <= 0) return null
-                const color = g.severity === 'critical' ? '#e06c75' : '#e5c07b'
-                return <span key={name} style={{ fontSize: 12, color, fontWeight: 600 }}>
-                  {name}: {remaining}
-                </span>
-              })}
-            </div>
+            return Object.entries(groups).map(([name, g]) => {
+              const remaining = g.smells.filter(s => state.smellStatus[s.id] !== 'fixed').length
+              const partial = g.smells.some(s => state.smellStatus[s.id] === 'partial')
+              const allFixed = remaining === 0
+              const progress = g.smells.reduce((acc, s) => acc + (state.smellProgress[s.id] ?? 0), 0) / g.smells.length
+              return (
+                <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', fontSize: 14 }}>
+                  <span style={{
+                    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                    background: allFixed ? '#98c379' : partial ? '#e5c07b' : SEVERITY_COLOR[g.severity],
+                  }} />
+                  <span style={{
+                    flex: 1, color: allFixed ? '#636d83' : '#abb2bf',
+                    textDecoration: allFixed ? 'line-through' : 'none',
+                  }}>
+                    {name} <span style={{ color: '#636d83', fontWeight: 400 }}>({g.smells.length})</span>
+                  </span>
+                  {allFixed ? (
+                    <span style={{ fontSize: 14, color: '#98c379', fontWeight: 600 }}>✓</span>
+                  ) : partial ? (
+                    <span style={{
+                      fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
+                      background: 'rgba(229,192,123,0.12)', color: '#e5c07b',
+                    }}>
+                      {Math.round(progress * 100)}%
+                    </span>
+                  ) : (
+                    <span style={{
+                      fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
+                      background: g.severity === 'critical' ? 'rgba(224,108,117,0.12)' : 'rgba(229,192,123,0.12)',
+                      color: SEVERITY_COLOR[g.severity],
+                    }}>
+                      {g.severity === 'critical' ? 'crítico' : 'warning'}
+                    </span>
+                  )}
+                </div>
+              )
+            })
           })()}
-          {level.smells.map((smell) => {
-            const status = state.smellStatus[smell.id]
-            const progress = state.smellProgress[smell.id] ?? 0
-            const isFixed = status === 'fixed'
-            const isPartial = status === 'partial'
-            return (
-              <div key={smell.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', fontSize: 14 }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: isFixed ? '#98c379' : isPartial ? '#e5c07b' : SEVERITY_COLOR[smell.severity],
-                }} />
-                <span style={{
-                  flex: 1, color: isFixed ? '#636d83' : '#abb2bf',
-                  textDecoration: isFixed ? 'line-through' : 'none',
-                }}>
-                  {smell.name}
-                </span>
-                {isFixed ? (
-                  <span style={{ fontSize: 14, color: '#98c379', fontWeight: 600 }}>✓</span>
-                ) : isPartial ? (
-                  <span style={{
-                    fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
-                    background: 'rgba(229,192,123,0.12)', color: '#e5c07b',
-                  }}>
-                    {Math.round(progress * 100)}%
-                  </span>
-                ) : (
-                  <span style={{
-                    fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
-                    background: smell.severity === 'critical' ? 'rgba(224,108,117,0.12)' : 'rgba(229,192,123,0.12)',
-                    color: SEVERITY_COLOR[smell.severity],
-                  }}>
-                    {smell.severity === 'critical' ? 'crítico' : 'warning'}
-                  </span>
-                )}
-              </div>
-            )
-          })}
         </Section>
 
         <Section label="Estabilidad del sistema" zoneId="stability">
@@ -173,21 +162,47 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
 
         {level.smells.some(s => state.smellStatus[s.id] !== 'fixed') && (
           <Section label={`Sugerencia ${codeChanged ? '' : '— opcional'}`} zoneId="suggestion">
-            <div style={{
-              background: '#2c313a',
-              borderRadius: 5, padding: '8px 10px',
-              borderLeft: '2px solid #61afef',
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#61afef', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
-                Extract Method
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#abb2bf', marginBottom: 4 }}>
-                divide y vencerás
-              </div>
-              <div style={{ fontSize: 12, color: '#5c6370', lineHeight: 1.5 }}>
-                Extrae funciones helper para cada responsabilidad dentro de processOrder.
-              </div>
-            </div>
+            {(() => {
+              // Generar sugerencia según el smell principal del nivel
+              const SUGGESTIONS: Record<string, { technique: string; tagline: string; detail: string }> = {
+                'Magic Numbers': {
+                  technique: 'Replace Magic Number',
+                  tagline: 'números con nombre',
+                  detail: 'Reemplaza los literales numéricos por constantes con nombre (const IVA = 0.19).',
+                },
+                'Long Method': {
+                  technique: 'Extract Method',
+                  tagline: 'divide y vencerás',
+                  detail: 'Extrae funciones helper para cada responsabilidad dentro del método largo.',
+                },
+                'Duplicate Code': {
+                  technique: 'DRY — Don\'t Repeat Yourself',
+                  tagline: 'una sola fuente de verdad',
+                  detail: 'Identifica bloques repetidos y extrae una función compartida.',
+                },
+              }
+              // Tomar el primer smell no-arreglado como referencia
+              const pending = level.smells.find(s => state.smellStatus[s.id] !== 'fixed')
+              const sug = pending ? SUGGESTIONS[pending.name] : null
+              if (!sug) return null
+              return (
+                <div style={{
+                  background: '#2c313a',
+                  borderRadius: 5, padding: '8px 10px',
+                  borderLeft: '2px solid #61afef',
+                }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#61afef', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
+                    {sug.technique}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#abb2bf', marginBottom: 4 }}>
+                    {sug.tagline}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#5c6370', lineHeight: 1.5 }}>
+                    {sug.detail}
+                  </div>
+                </div>
+              )
+            })()}
           </Section>
         )}
       </div>

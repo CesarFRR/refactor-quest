@@ -37,8 +37,9 @@ function initialState(level: Level): GameState {
     avatarMessage: firstStep?.trigger === 'level-start' ? firstStep.message : undefined,
     avatarHighlightLine: firstStep?.highlightLine,
     avatarHighlightZone: firstStep?.highlightZone,
-    avatarCinematicBlur: firstStep?.cinematicBlur,
+        avatarCinematicBlur: firstStep?.cinematicBlur,
     avatarInjecting: false,
+    injectTarget: undefined,
     avatarZone: firstStep?.zone ?? 'bottom-right',
     interactiveLock: firstStep?.interactiveLock ?? false,
   }
@@ -238,6 +239,7 @@ export function useGameState(level: Level) {
         avatarHighlightZone: avatar.avatarHighlightZone,
         avatarCinematicBlur: avatar.avatarCinematicBlur,
         avatarInjecting: false,
+        injectTarget: undefined,
         avatarZone: avatar.avatarZone,
         interactiveLock: avatar.interactiveLock,
       }
@@ -326,7 +328,7 @@ export function useGameState(level: Level) {
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
-      return { ...prev, code, smellStatus, smellProgress, energy, stability, phase: 'refactor' }
+      return { ...prev, code, smellStatus, smellProgress, energy, stability, phase: 'refactor', avatarInjecting: false, injectTarget: undefined }
     })
     setChanged(true)
     setLevelCompleted(false)
@@ -373,6 +375,8 @@ export function useGameState(level: Level) {
         energy,
         stability,
         phase: 'refactor',
+        avatarInjecting: false,
+        injectTarget: undefined,
         avatarActive: false,
         avatarMessage: '¡Yo me encargo de este! Tú haz los otros dos.',
       }
@@ -406,6 +410,8 @@ export function useGameState(level: Level) {
         energy,
         stability,
         phase: 'refactor',
+        avatarInjecting: false,
+        injectTarget: undefined,
       }
     })
     setChanged(true)
@@ -419,40 +425,14 @@ export function useGameState(level: Level) {
       if (prev.levelId !== level.id) return prev
       const cur = tutorial.steps![prev.avatarStep]
 
-      // Si el paso actual tiene injectCode, animar la inyección con retardo
+      // Paso con injectCode: activar animación de tipeo en el editor
       if (cur?.injectCode) {
-        const code = cur.injectCode
-        const { status: smellStatus, progress: smellProgress } =
-          recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
-        const energy = calcEnergy(level, smellStatus)
-        const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
-        const next = prev.avatarStep + 1
-        const finish = (innerPrev: typeof prev) => {
-          if (next >= tutorial.steps!.length) {
-            return {
-              ...innerPrev, code, smellStatus, smellProgress, energy, stability,
-              avatarMessage: undefined, avatarHighlightLine: undefined,
-              avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
-              avatarInjecting: false,
-              avatarZone: 'bottom-right' as const, interactiveLock: false,
-            }
-          }
-          const step = tutorial.steps![next]
-          return {
-            ...innerPrev, code, smellStatus, smellProgress, energy, stability,
-            avatarStep: next,
-            avatarMessage: step.message,
-            avatarHighlightLine: step.highlightLine,
-            avatarHighlightZone: step.highlightZone,
-            avatarCinematicBlur: step.cinematicBlur,
-            avatarInjecting: false,
-            avatarZone: step.zone ?? 'bottom-right',
-            interactiveLock: step.interactiveLock ?? false,
-          }
+        return {
+          ...prev,
+          avatarInjecting: true,
+          injectTarget: cur.injectCode,
+          interactiveLock: true,
         }
-        // Mostrar "escribiendo..." y después de 1.2s inyectar el código
-        setTimeout(() => setState(finish), 1200)
-        return { ...prev, avatarInjecting: true }
       }
 
       // Paso sin injectCode: sólo avanzar
@@ -471,6 +451,42 @@ export function useGameState(level: Level) {
       const step = tutorial.steps![next]
       return {
         ...prev,
+        avatarStep: next,
+        avatarMessage: step.message,
+        avatarHighlightLine: step.highlightLine,
+        avatarHighlightZone: step.highlightZone,
+        avatarCinematicBlur: step.cinematicBlur,
+        avatarZone: step.zone ?? 'bottom-right',
+        interactiveLock: step.interactiveLock ?? false,
+      }
+    })
+  }, [level])
+
+  /** Completa la animación de inyección: actualiza código, smells y avanza paso */
+  const completeInjection = useCallback(() => {
+    const tutorial = level.tutorial
+    if (!tutorial || !tutorial.steps) return
+    setState((prev) => {
+      if (prev.levelId !== level.id || !prev.injectTarget) return prev
+      const code = prev.injectTarget
+      const { status: smellStatus, progress: smellProgress } =
+        recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
+      const energy = calcEnergy(level, smellStatus)
+      const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
+      const next = prev.avatarStep + 1
+      if (next >= tutorial.steps!.length) {
+        return {
+          ...prev, code, smellStatus, smellProgress, energy, stability,
+          avatarInjecting: false, injectTarget: undefined,
+          avatarMessage: undefined, avatarHighlightLine: undefined,
+          avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
+          avatarZone: 'bottom-right' as const, interactiveLock: false,
+        }
+      }
+      const step = tutorial.steps![next]
+      return {
+        ...prev, code, smellStatus, smellProgress, energy, stability,
+        avatarInjecting: false, injectTarget: undefined,
         avatarStep: next,
         avatarMessage: step.message,
         avatarHighlightLine: step.highlightLine,
@@ -544,6 +560,7 @@ export function useGameState(level: Level) {
     injectGuidedSmell,
     injectAvatarStep,
     confirmAvatarStep,
+    completeInjection,
     showHint,
   }
 }

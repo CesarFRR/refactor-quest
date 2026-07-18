@@ -171,6 +171,8 @@ export interface GameState {
   avatarHighlightZone?: ZoneId
   /** Si true, Cody está "escribiendo" código (animación de inyección) */
   avatarInjecting?: boolean
+  /** Código destino que Cody está escribiendo caracter por caracter */
+  injectTarget?: string
   /** Si true, difumina todo excepto Cody (efecto cinematográfico) */
   avatarCinematicBlur?: boolean
   /** Zona actual de Cody (para moverse por el juego) */
