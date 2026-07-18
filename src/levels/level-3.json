@@ -1,0 +1,54 @@
+{
+  "id": 3,
+  "title": "Duplicado en boletas de nómina",
+  "narrative": "El sistema imprime boletas para empleados y contratistas. Alguien copió-pego el bloque de formateo en las dos funciones. Ahora hay que cambiar el mismo código dos veces. Extrae una función compartida. Lenny te sugiere sólo si te trabas.",
+  "energyBudget": 10,
+  "maxAttempts": 5,
+  "domain": "payroll",
+  "tutorial": {
+    "avatarMode": "hint-on-stuck",
+    "autoRunTests": false,
+    "hintAfterIdleMs": 30000,
+    "hintAfterFails": 2,
+    "steps": [
+      {
+        "trigger": "idle-ms",
+        "message": "¿Te trabaste? Mira las dos funciones: generarBoletaEmpleado y generarBoletaContratista. Las dos repiten el bloque 'Empleado: ... Bruto: ... Neto: ...'. Extrae una función formatBoleta(datos, tipo) y llámala desde ambas.",
+        "highlightLine": 16
+      }
+    ]
+  },
+  "initialCode": "// Boletas de nómina — v0.1 (duplicado)\n\nfunction generarBoletaEmpleado(emp) {\n  const bruto = emp.salarioBase;\n  const neto = bruto - bruto * 0.04 - bruto * 0.04;\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + emp.nombre + '\\\\n';\n  boleta = boleta + 'Tipo: EMPLEADO\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return boleta;\n}\n\nfunction generarBoletaContratista(c) {\n  const bruto = c.honorarios;\n  const neto = bruto - bruto * 0.10;\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + c.nombre + '\\\\n';\n  boleta = boleta + 'Tipo: CONTRATISTA\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return boleta;\n}\n",
+  "solution": "// Boletas de nómina — v0.2 (sin duplicado)\n\nfunction formatBoleta(nombre, tipo, bruto, neto) {\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + nombre + '\\\\n';\n  boleta = boleta + 'Tipo: ' + tipo + '\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return boleta;\n}\n\nfunction generarBoletaEmpleado(emp) {\n  const bruto = emp.salarioBase;\n  const neto = bruto - bruto * 0.04 - bruto * 0.04;\n  return formatBoleta(emp.nombre, 'EMPLEADO', bruto, neto);\n}\n\nfunction generarBoletaContratista(c) {\n  const bruto = c.honorarios;\n  const neto = bruto - bruto * 0.10;\n  return formatBoleta(c.nombre, 'CONTRATISTA', bruto, neto);\n}\n",
+  "smells": [
+    {
+      "id": "duplicate-code",
+      "name": "Duplicate Code",
+      "severity": "warning",
+      "description": "El bloque de formateo (Empleado / Tipo / Bruto / Neto) aparece dos veces. Extrae una función formatBoleta() y reutilízala.",
+      "lineStart": 5,
+      "lineEnd": 23,
+      "energyCost": 3
+    }
+  ],
+  "tests": [
+    {
+      "id": "test-boleta-empleado",
+      "description": "Boleta de empleado con descuentos",
+      "fn": "const r = generarBoletaEmpleado({ nombre: 'Ana', salarioBase: 3000 });\nif (!r.includes('Ana') || !r.includes('EMPLEADO'))\n  throw new Error('La boleta debe incluir nombre y tipo EMPLEADO');\nif (!r.includes('Neto: $'))\n  throw new Error('La boleta debe incluir el neto');"
+    },
+    {
+      "id": "test-boleta-contratista",
+      "description": "Boleta de contratista con retención 10%",
+      "fn": "const r = generarBoletaContratista({ nombre: 'Beto', honorarios: 5000 });\nif (!r.includes('Beto') || !r.includes('CONTRATISTA'))\n  throw new Error('La boleta debe incluir nombre y tipo CONTRATISTA');"
+    },
+    {
+      "id": "test-neto-empleado-correcto",
+      "description": "Neto del empleado descuenta salud + pensión",
+      "fn": "const r = generarBoletaEmpleado({ nombre: 'Carla', salarioBase: 2000 });\nconst bruto = 2000;\nconst esperado = bruto - bruto * 0.04 - bruto * 0.04;\nif (!r.includes(esperado.toFixed(2)))\n  throw new Error(`La boleta debe mostrar el neto ${esperado.toFixed(2)}`);"
+    }
+  ],
+  "validators": {
+    "duplicate-code": "const m = code.match(/\\+ 'Empleado: '\\s*\\+/g); return (m || []).length <= 1;"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": 2,
+  "title": "Función monstruo en nómina",
+  "narrative": "calcularLiquidacion hace todo: bruto, extras, retención, salud, pensión, neto y boleta formateada. 30 líneas en una sola función. Nadie se atreve a tocarla. Divídela en funciones pequeñas con una sola responsabilidad. Lenny te guía.",
+  "energyBudget": 10,
+  "maxAttempts": 5,
+  "domain": "payroll",
+  "tutorial": {
+    "avatarMode": "walkthrough",
+    "autoRunTests": false,
+    "steps": [
+      {
+        "trigger": "level-start",
+        "message": "Segundo smell: Long Method. Mira calcularLiquidacion — hace 5 cosas distintas en 30 líneas. Cuando una función hace demasiado, cuesta leerla y testearla. Vamos a dividirla.",
+        "highlightLine": 4,
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Paso 1: extrae calcBruto(empleado). Toma empleado.salarioBase y empleado.horas, devuelve el bruto (con horas extras al 50% si pasas de 40). Llámala desde calcularLiquidacion. Pulsa 'Siguiente' cuando la hayas escrito.",
+        "highlightLine": 6,
+        "zone": "editor"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Paso 2: extrae calcDescuentos(bruto) — devuelve {salud, pension, retencion}. Y calcNeto(bruto, descuentos). Sigue extrayendo funciones. Cuando tengas 3+ funciones declaradas, el smell se marcará corregido.",
+        "highlightLine": 18,
+        "zone": "editor",
+        "waitForSmell": "long-method"
+      }
+    ]
+  },
+  "initialCode": "// Liquidación de nómina — v0.1 (función monstruo)\n\nfunction calcularLiquidacion(empleado) {\n  let bruto = empleado.salarioBase;\n  if (empleado.horas > 40) {\n    const extras = empleado.horas - 40;\n    bruto = bruto + extras * empleado.tarifa * 1.5;\n  }\n  const salud = bruto * 0.04;\n  const pension = bruto * 0.04;\n  const retencion = bruto > 5000 ? bruto * 0.10 : 0;\n  const descuentos = salud + pension + retencion;\n  const neto = bruto - descuentos;\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + empleado.nombre + '\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Salud: $' + salud.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Pensión: $' + pension.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Retención: $' + retencion.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return { bruto, neto, descuentos, boleta };\n}\n",
+  "solution": "// Liquidación de nómina — v0.2 (dividida en funciones)\n\nfunction calcBruto(empleado) {\n  let bruto = empleado.salarioBase;\n  if (empleado.horas > 40) {\n    const extras = empleado.horas - 40;\n    bruto = bruto + extras * empleado.tarifa * 1.5;\n  }\n  return bruto;\n}\n\nfunction calcDescuentos(bruto) {\n  const salud = bruto * 0.04;\n  const pension = bruto * 0.04;\n  const retencion = bruto > 5000 ? bruto * 0.10 : 0;\n  return { salud, pension, retencion, total: salud + pension + retencion };\n}\n\nfunction formatBoleta(empleado, bruto, descuentos, neto) {\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + empleado.nombre + '\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Salud: $' + descuentos.salud.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Pensión: $' + descuentos.pension.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Retención: $' + descuentos.retencion.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return boleta;\n}\n\nfunction calcularLiquidacion(empleado) {\n  const bruto = calcBruto(empleado);\n  const descuentos = calcDescuentos(bruto);\n  const neto = bruto - descuentos.total;\n  const boleta = formatBoleta(empleado, bruto, descuentos, neto);\n  return { bruto, neto, descuentos: descuentos.total, boleta };\n}\n",
+  "smells": [
+    {
+      "id": "long-method",
+      "name": "Long Method",
+      "severity": "critical",
+      "description": "calcularLiquidacion hace demasiado: bruto, descuentos, neto, boleta. Divídela en funciones pequeñas (calcBruto, calcDescuentos, formatBoleta).",
+      "lineStart": 4,
+      "lineEnd": 23,
+      "energyCost": 4
+    }
+  ],
+  "tests": [
+    {
+      "id": "test-neto-sin-extras",
+      "description": "Nómina sin horas extras: descuenta salud, pensión, sin retención",
+      "fn": "const emp = { nombre: 'Ana', salarioBase: 3000, horas: 40, tarifa: 50 };\nconst r = calcularLiquidacion(emp);\nconst bruto = 3000;\nconst desc = bruto * 0.04 * 2;\nconst esperado = bruto - desc;\nif (Math.abs(r.neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r.neto}`);"
+    },
+    {
+      "id": "test-neto-con-retencion",
+      "description": "Salario > $5000: aplica retención 10%",
+      "fn": "const emp = { nombre: 'Beto', salarioBase: 6000, horas: 40, tarifa: 50 };\nconst r = calcularLiquidacion(emp);\nconst bruto = 6000;\nconst desc = bruto * 0.04 * 2 + bruto * 0.10;\nconst esperado = bruto - desc;\nif (Math.abs(r.neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r.neto}`);"
+    },
+    {
+      "id": "test-boleta-contiene-nombre",
+      "description": "La boleta incluye el nombre del empleado",
+      "fn": "const emp = { nombre: 'Carla', salarioBase: 2000, horas: 35, tarifa: 40 };\nconst r = calcularLiquidacion(emp);\nif (!r.boleta.includes('Carla'))\n  throw new Error('La boleta debe incluir el nombre del empleado');"
+    }
+  ],
+  "validators": {
+    "long-method": "const m = code.match(/function\\s+\\w+/g); return (m || []).length >= 4;"
+  }
+}

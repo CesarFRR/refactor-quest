@@ -1,60 +1,55 @@
 {
   "id": 1,
-  "title": "Sistema de facturación crítico",
-  "narrative": "El sistema de facturación lleva 3 años sin refactoring. Los tests empiezan a fallar. Tu misión: estabilizarlo.",
+  "title": "Números mágicos en nómina",
+  "narrative": "El cálculo de salario tiene tasas esparcidas por todas partes: 0.04 para salud, 0.04 para pensión... nadie recuerda qué significa cada número. Sácalos a constantes con nombre. Lenny te guía paso a paso.",
   "energyBudget": 10,
-  "maxAttempts": 3,
-  "initialCode": "// Sistema de facturación — v0.1.2 (legacy)\n// TODO: alguien tiene que limpiar esto algún día\n\nfunction processOrder(items, customerId) {\n  // calcular total\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n\n  // aplicar descuento\n  let discount = 0;\n  if (total > 1000) {\n    discount = total * 0.15;  // 15% para pedidos grandes\n  } else if (total > 500) {\n    discount = total * 0.08;  // 8% para pedidos medianos\n  }\n  total = total - discount;\n\n  // calcular impuesto\n  let tax = total * 0.19;  // IVA Colombia 19%\n  total = total + tax;\n\n  // formatear resumen para el cliente\n  let summary = '';\n  summary = summary + 'Cliente: ' + customerId + '\\\\n';\n  summary = summary + 'Subtotal: $' + (total - tax).toFixed(2) + '\\\\n';\n  summary = summary + 'IVA (19%): $' + tax.toFixed(2) + '\\\\n';\n  summary = summary + 'Total: $' + total.toFixed(2) + '\\\\n';\n  if (discount > 0) {\n    summary = summary + 'Descuento aplicado: $' + discount.toFixed(2) + '\\\\n';\n  }\n\n  // duplicado: se usa también en generateReceipt()\n  let receiptHeader = '';\n  receiptHeader = receiptHeader + 'Cliente: ' + customerId + '\\\\n';\n  receiptHeader = receiptHeader + 'Subtotal: $' + (total - tax).toFixed(2) + '\\\\n';\n  receiptHeader = receiptHeader + 'IVA (19%): $' + tax.toFixed(2) + '\\\\n';\n  receiptHeader = receiptHeader + 'Total: $' + total.toFixed(2) + '\\\\n';\n\n  return { total, summary, tax, discount };\n}\n",
-  "solution": "// Sistema de facturación — v0.2.0 (refactored)\n\nconst IVA_RATE = 0.19;\nconst DISCOUNT_HIGH_THRESHOLD = 1000;\nconst DISCOUNT_HIGH_RATE = 0.15;\nconst DISCOUNT_MED_THRESHOLD = 500;\nconst DISCOUNT_MED_RATE = 0.08;\n\nfunction calcTotal(items) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  return total;\n}\n\nfunction calcDiscount(total) {\n  if (total > DISCOUNT_HIGH_THRESHOLD) {\n    return total * DISCOUNT_HIGH_RATE;\n  }\n  if (total > DISCOUNT_MED_THRESHOLD) {\n    return total * DISCOUNT_MED_RATE;\n  }\n  return 0;\n}\n\nfunction calcTax(total) {\n  return total * IVA_RATE;\n}\n\nfunction formatSummary(total, tax, discount, customerId) {\n  let s = '';\n  s = s + 'Cliente: ' + customerId + '\\\\n';\n  s = s + 'Subtotal: $' + (total - tax).toFixed(2) + '\\\\n';\n  s = s + 'IVA (19%): $' + tax.toFixed(2) + '\\\\n';\n  s = s + 'Total: $' + total.toFixed(2) + '\\\\n';\n  if (discount > 0) {\n    s = s + 'Descuento aplicado: $' + discount.toFixed(2) + '\\\\n';\n  }\n  return s;\n}\n\nfunction processOrder(items, customerId) {\n  const total = calcTotal(items);\n  const discount = calcDiscount(total);\n  const subtotal = total - discount;\n  const tax = calcTax(subtotal);\n  const finalTotal = subtotal + tax;\n  const summary = formatSummary(finalTotal, tax, discount, customerId);\n  return { total: finalTotal, summary, tax, discount };\n}\n",
+  "maxAttempts": 5,
+  "domain": "payroll",
+  "tutorial": {
+    "avatarMode": "walkthrough",
+    "autoRunTests": false,
+    "steps": [
+      {
+        "trigger": "level-start",
+        "message": "Bienvenido al primer refactor real. Mira el panel izquierdo: hay 1 smell, 'Magic Numbers'. Eso significa que hay números sueltos en el código sin nombre. Tu misión: convertirlos en constantes.",
+        "highlightLine": 5,
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Arriba del todo (antes de la función), escribe: const TASA_SALUD = 0.04; y luego reemplaza el 0.04 de la línea 5 por TASA_SALUD. Haz lo mismo con la pensión. Cuando el smell se marque corregido, seguiré.",
+        "highlightLine": 5,
+        "zone": "editor",
+        "waitForSmell": "magic-numbers"
+      }
+    ]
+  },
+  "initialCode": "// Cálculo de salario — v0.1 (nómina legacy)\n// Las tasas están esparcidas sin nombre.\n\nfunction calcularSalario(salarioBase) {\n  const salud = salarioBase * 0.04;\n  const pension = salarioBase * 0.04;\n  const neto = salarioBase - salud - pension;\n  return { neto, salud, pension };\n}\n",
+  "solution": "// Cálculo de salario — v0.2 (constantes con nombre)\n\nconst TASA_SALUD = 0.04;\nconst TASA_PENSION = 0.04;\n\nfunction calcularSalario(salarioBase) {\n  const salud = salarioBase * TASA_SALUD;\n  const pension = salarioBase * TASA_PENSION;\n  const neto = salarioBase - salud - pension;\n  return { neto, salud, pension };\n}\n",
   "smells": [
-    {
-      "id": "long-method",
-      "name": "Long Method",
-      "severity": "critical",
-      "description": "processOrder hace demasiado: calcula, aplica descuento, calcula impuesto, formatea. Divídela en funciones más pequeñas.",
-      "lineStart": 4,
-      "lineEnd": 42,
-      "energyCost": 4
-    },
     {
       "id": "magic-numbers",
       "name": "Magic Numbers",
       "severity": "warning",
-      "description": "0.15, 0.08, 0.19, 1000 y 500 son literales mágicos. Extráelos como constantes con nombres descriptivos.",
-      "lineStart": 13,
-      "lineEnd": 18,
+      "description": "0.04 y 0.04 son literales mágicos. Extráelos como constantes con nombres descriptivos (TASA_SALUD, TASA_PENSION).",
+      "lineStart": 5,
+      "lineEnd": 6,
       "energyCost": 2
-    },
-    {
-      "id": "duplicate-code",
-      "name": "Duplicate Code",
-      "severity": "warning",
-      "description": "El bloque de formateo del resumen aparece dos veces. Extrae una función formatSummary().",
-      "lineStart": 22,
-      "lineEnd": 38,
-      "energyCost": 3
     }
   ],
   "tests": [
     {
-      "id": "test-total-sin-descuento",
-      "description": "Pedido pequeño: sin descuento, con IVA",
-      "fn": "const items = [{ price: 100, qty: 2 }];\nconst result = processOrder(items, 'CLI-001');\nconst expected = 200 * 1.19;\nif (Math.abs(result.total - expected) > 0.01)\n  throw new Error(`Esperado ${expected}, recibido ${result.total}`);"
+      "id": "test-salario-basico",
+      "description": "Salario base: descuenta salud y pensión (4% cada uno)",
+      "fn": "const r = calcularSalario(3000);\nconst esperado = 3000 - 3000 * 0.04 - 3000 * 0.04;\nif (Math.abs(r.neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r.neto}`);"
     },
     {
-      "id": "test-descuento-grande",
-      "description": "Pedido >$1000: descuento 15%",
-      "fn": "const items = [{ price: 600, qty: 2 }];\nconst result = processOrder(items, 'CLI-002');\nif (result.discount <= 0)\n  throw new Error('Debería haber descuento para pedidos >$1000');"
-    },
-    {
-      "id": "test-summary-contiene-cliente",
-      "description": "El resumen incluye el ID del cliente",
-      "fn": "const items = [{ price: 50, qty: 1 }];\nconst result = processOrder(items, 'CLI-XYZ');\nif (!result.summary.includes('CLI-XYZ'))\n  throw new Error('El resumen debe incluir el ID del cliente');"
+      "id": "test-salario-otro",
+      "description": "Otro salario: descuentos correctos",
+      "fn": "const r = calcularSalario(5000);\nconst esperado = 5000 - 5000 * 0.04 - 5000 * 0.04;\nif (Math.abs(r.neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r.neto}`);"
     }
   ],
   "validators": {
-    "long-method": "const m = code.match(/function\\s+\\w+/g); return (m || []).length >= 3;",
-    "magic-numbers": "const lines = code.split('\\n'); const fb = lines.filter(l => { const t = l.trim(); return !t.startsWith('//') && !t.startsWith('const '); }); const h = /\\b0\\.(15|08|19)\\b/.test(fb.join('\\n')); return !h;",
-    "duplicate-code": "const m = code.match(/\\+ 'Cliente: '\\s*\\+/g); return (m || []).length <= 1;"
+    "magic-numbers": "const lines = code.split('\\n'); const fb = lines.filter(l => { const t = l.trim(); return !t.startsWith('//') && !t.startsWith('*') && !/^const\\s+[A-Z_]+\\s*=/.test(t); }); const h = /\\b0\\.04\\b/.test(fb.join('\\n')); const hasConst = /const\\s+[A-Z][A-Z_]*\\s*=\\s*0\\.04/.test(code); return !h && hasConst ? 1 : hasConst ? 0.5 : 0;"
   }
 }

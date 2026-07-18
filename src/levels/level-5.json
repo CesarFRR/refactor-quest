@@ -1,0 +1,60 @@
+{
+  "id": 5,
+  "title": "Solo en el mar",
+  "narrative": "Liquidación de contratos: una función gigante que calcula y formatea, con el bloque de boleta duplicado. Dos smells, sin ayuda. Lenny se queda mudo observando. Demuestra lo que aprendiste. Los tests se ejecutan sólo cuando tú decidas.",
+  "energyBudget": 14,
+  "maxAttempts": 6,
+  "domain": "payroll",
+  "tutorial": {
+    "avatarMode": "off",
+    "autoRunTests": false
+  },
+  "initialCode": "// Liquidación de contratos — v0.1 (2 smells, sin ayuda)\n\nfunction liquidarContrato(c) {\n  let bruto = c.honorarios;\n  if (c.horas > 40) {\n    bruto = bruto + (c.horas - 40) * c.tarifa * 1.5;\n  }\n  const retencion = bruto > 5000 ? bruto * 0.10 : 0;\n  const neto = bruto - retencion;\n  let boleta = '';\n  boleta = boleta + 'Empleado: ' + c.nombre + '\\\\n';\n  boleta = boleta + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Retención: $' + retencion.toFixed(2) + '\\\\n';\n  boleta = boleta + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return { bruto, neto, retencion, boleta };\n}\n\nfunction liquidarYResumir(c) {\n  const resultado = liquidarContrato(c);\n  let resumen = '';\n  resumen = resumen + 'Empleado: ' + c.nombre + '\\\\n';\n  resumen = resumen + 'Bruto: $' + resultado.bruto.toFixed(2) + '\\\\n';\n  resumen = resumen + 'Retención: $' + resultado.retencion.toFixed(2) + '\\\\n';\n  resumen = resumen + 'Neto: $' + resultado.neto.toFixed(2) + '\\\\n';\n  resumen = resumen + 'Estado: LIQUIDADO\\\\n';\n  return resumen;\n}\n",
+  "solution": "// Liquidación de contratos — v0.2 (sin duplicado, dividida)\n\nfunction calcBruto(c) {\n  let bruto = c.honorarios;\n  if (c.horas > 40) {\n    bruto = bruto + (c.horas - 40) * c.tarifa * 1.5;\n  }\n  return bruto;\n}\n\nfunction calcRetencion(bruto) {\n  return bruto > 5000 ? bruto * 0.10 : 0;\n}\n\nfunction formatBoletaLiquida(nombre, bruto, retencion, neto) {\n  let s = '';\n  s = s + 'Empleado: ' + nombre + '\\\\n';\n  s = s + 'Bruto: $' + bruto.toFixed(2) + '\\\\n';\n  s = s + 'Retención: $' + retencion.toFixed(2) + '\\\\n';\n  s = s + 'Neto: $' + neto.toFixed(2) + '\\\\n';\n  return s;\n}\n\nfunction liquidarContrato(c) {\n  const bruto = calcBruto(c);\n  const retencion = calcRetencion(bruto);\n  const neto = bruto - retencion;\n  const boleta = formatBoletaLiquida(c.nombre, bruto, retencion, neto);\n  return { bruto, neto, retencion, boleta };\n}\n\nfunction liquidarYResumir(c) {\n  const r = liquidarContrato(c);\n  return formatBoletaLiquida(c.nombre, r.bruto, r.retencion, r.neto) + 'Estado: LIQUIDADO\\\\n';\n}\n",
+  "smells": [
+    {
+      "id": "long-method",
+      "name": "Long Method",
+      "severity": "critical",
+      "description": "liquidarContrato hace demasiado: bruto, retención, neto y boleta. Divídela en funciones (calcBruto, calcRetencion, formatBoletaLiquida).",
+      "lineStart": 4,
+      "lineEnd": 16,
+      "energyCost": 4
+    },
+    {
+      "id": "duplicate-code",
+      "name": "Duplicate Code",
+      "severity": "warning",
+      "description": "El bloque 'Empleado: ... Bruto: ... Retención: ... Neto: ...' aparece en liquidarContrato y liquidarYResumir. Extrae formatBoletaLiquida().",
+      "lineStart": 11,
+      "lineEnd": 26,
+      "energyCost": 3
+    }
+  ],
+  "tests": [
+    {
+      "id": "test-liquidar-sin-retencion",
+      "description": "Contrato sin retención (bruto < $5000)",
+      "fn": "const c = { nombre: 'Ana', honorarios: 3000, horas: 40, tarifa: 50 };\nconst r = liquidarContrato(c);\nif (r.retencion !== 0) throw new Error('No debe haber retención bajo $5000');\nif (Math.abs(r.neto - 3000) > 0.01) throw new Error('Neto debe ser igual al bruto');"
+    },
+    {
+      "id": "test-liquidar-con-retencion",
+      "description": "Contrato con retención 10% (bruto > $5000)",
+      "fn": "const c = { nombre: 'Beto', honorarios: 6000, horas: 40, tarifa: 50 };\nconst r = liquidarContrato(c);\nif (Math.abs(r.retencion - 600) > 0.01) throw new Error('Retención debe ser 600');\nif (Math.abs(r.neto - 5400) > 0.01) throw new Error('Neto debe ser 5400');"
+    },
+    {
+      "id": "test-boleta-contiene-nombre",
+      "description": "La boleta incluye el nombre",
+      "fn": "const c = { nombre: 'Carla', honorarios: 2000, horas: 35, tarifa: 40 };\nconst r = liquidarContrato(c);\nif (!r.boleta.includes('Carla')) throw new Error('La boleta debe incluir el nombre');"
+    },
+    {
+      "id": "test-resumen-estado-liquidado",
+      "description": "El resumen termina con Estado: LIQUIDADO",
+      "fn": "const c = { nombre: 'Dani', honorarios: 4000, horas: 40, tarifa: 50 };\nconst r = liquidarYResumir(c);\nif (!r.includes('LIQUIDADO')) throw new Error('El resumen debe indicar LIQUIDADO');"
+    }
+  ],
+  "validators": {
+    "long-method": "const m = code.match(/function\\s+\\w+/g); return (m || []).length >= 4;",
+    "duplicate-code": "const m = code.match(/\\+ 'Empleado: '\\s*\\+/g); return (m || []).length <= 1;"
+  }
+}

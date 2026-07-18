@@ -5,6 +5,7 @@ interface Props {
   state: GameState
   onNextLevel?: () => void
   onReplay: () => void
+  nextLevel?: Level
 }
 
 function Star({ filled }: { filled: boolean }) {
@@ -18,7 +19,7 @@ function Star({ filled }: { filled: boolean }) {
   )
 }
 
-export function LevelComplete({ level, state, onNextLevel, onReplay }: Props) {
+export function LevelComplete({ level, state, onNextLevel, onReplay, nextLevel }: Props) {
   const fixedCount = Object.values(state.smellStatus).filter(s => s === 'fixed').length
   const totalSmells = level.smells.length
   const passedTests = state.testResults.filter(r => r.passed).length
@@ -260,16 +261,20 @@ export function LevelComplete({ level, state, onNextLevel, onReplay }: Props) {
               <span style={{ fontSize: 13, color: '#3e4451', fontWeight: 600 }}>→</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 10, color: '#4b5263', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
-                  siguiente nivel desbloqueado
+                  {nextLevel ? 'siguiente nivel desbloqueado' : 'fin del recorrido'}
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#abb2bf' }}>
-                  Nivel 2 · "Próximamente"
+                  {nextLevel
+                    ? `Nivel ${nextLevel.id} · "${nextLevel.title}"`
+                    : '¡Completaste todos los niveles! 🎉'}
                 </div>
               </div>
-              <span style={{
-                fontSize: 10, padding: '2px 7px', borderRadius: 3, fontWeight: 600,
-                background: 'rgba(152,195,121,0.1)', color: '#98c379', border: '1px solid rgba(152,195,121,0.2)',
-              }}>nuevo</span>
+              {nextLevel && (
+                <span style={{
+                  fontSize: 10, padding: '2px 7px', borderRadius: 3, fontWeight: 600,
+                  background: 'rgba(152,195,121,0.1)', color: '#98c379', border: '1px solid rgba(152,195,121,0.2)',
+                }}>nuevo</span>
+              )}
             </div>
           </div>
         </div>

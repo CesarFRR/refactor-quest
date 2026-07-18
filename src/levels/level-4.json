@@ -1,0 +1,64 @@
+{
+  "id": 4,
+  "title": "Dos problemas en la planilla",
+  "narrative": "procesarPlanilla calcula el salario de cada empleado en un bucle, con tasas mágicas y toda la lógica metida en una sola función gigante. Hay DOS smells: Magic Numbers y Long Method. Resuélvelos en el orden que prefieras. Lenny sugiere sólo si te trabas.",
+  "energyBudget": 12,
+  "maxAttempts": 6,
+  "domain": "payroll",
+  "tutorial": {
+    "avatarMode": "hint-on-stuck",
+    "autoRunTests": false,
+    "hintAfterIdleMs": 35000,
+    "hintAfterFails": 2,
+    "steps": [
+      {
+        "trigger": "idle-ms",
+        "message": "Dos smells a la vez. Mi truco: empieza por las constantes (SALUD_RATE, PENSION_RATE, HORAS_NORMALES, EXTRA_RATE). Luego extrae calcularSalario(emp) fuera del bucle. Cuando tienes funciones pequeñas, los números mágicos quedan a la vista.",
+        "highlightLine": 4
+      }
+    ]
+  },
+  "initialCode": "// Planilla de nómina — v0.1 (2 smells)\n\nfunction procesarPlanilla(empleados) {\n  const resultados = [];\n  for (let i = 0; i < empleados.length; i++) {\n    const emp = empleados[i];\n    let bruto = emp.salarioBase;\n    if (emp.horas > 40) {\n      const extras = emp.horas - 40;\n      bruto = bruto + extras * emp.tarifa * 1.5;\n    }\n    const salud = bruto * 0.04;\n    const pension = bruto * 0.04;\n    const neto = bruto - salud - pension;\n    resultados.push({ nombre: emp.nombre, bruto: bruto, neto: neto });\n  }\n  return resultados;\n}\n",
+  "solution": "// Planilla de nómina — v0.2 (constantes + dividida)\n\nconst SALUD_RATE = 0.04;\nconst PENSION_RATE = 0.04;\nconst HORAS_NORMALES = 40;\nconst EXTRA_RATE = 1.5;\n\nfunction calcularSalario(emp) {\n  let bruto = emp.salarioBase;\n  if (emp.horas > HORAS_NORMALES) {\n    const extras = emp.horas - HORAS_NORMALES;\n    bruto = bruto + extras * emp.tarifa * EXTRA_RATE;\n  }\n  const salud = bruto * SALUD_RATE;\n  const pension = bruto * PENSION_RATE;\n  return { bruto, neto: bruto - salud - pension };\n}\n\nfunction procesarPlanilla(empleados) {\n  const resultados = [];\n  for (let i = 0; i < empleados.length; i++) {\n    const r = calcularSalario(empleados[i]);\n    resultados.push({ nombre: empleados[i].nombre, bruto: r.bruto, neto: r.neto });\n  }\n  return resultados;\n}\n",
+  "smells": [
+    {
+      "id": "magic-numbers",
+      "name": "Magic Numbers",
+      "severity": "warning",
+      "description": "0.04, 1.5 y 40 son literales mágicos. Extráelos como constantes (SALUD_RATE, PENSION_RATE, EXTRA_RATE, HORAS_NORMALES).",
+      "lineStart": 7,
+      "lineEnd": 13,
+      "energyCost": 2
+    },
+    {
+      "id": "long-method",
+      "name": "Long Method",
+      "severity": "critical",
+      "description": "procesarPlanilla calcula el salario dentro del bucle. Extrae calcularSalario(emp) fuera.",
+      "lineStart": 4,
+      "lineEnd": 15,
+      "energyCost": 4
+    }
+  ],
+  "tests": [
+    {
+      "id": "test-planilla-un-empleado",
+      "description": "Planilla con un empleado sin extras",
+      "fn": "const emps = [{ nombre: 'Ana', salarioBase: 3000, horas: 40, tarifa: 50 }];\nconst r = procesarPlanilla(emps);\nif (r.length !== 1) throw new Error('Debe devolver 1 resultado');\nconst esperado = 3000 - 3000 * 0.04 * 2;\nif (Math.abs(r[0].neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r[0].neto}`);"
+    },
+    {
+      "id": "test-planilla-con-extras",
+      "description": "Planilla con horas extras",
+      "fn": "const emps = [{ nombre: 'Beto', salarioBase: 2000, horas: 45, tarifa: 100 }];\nconst r = procesarPlanilla(emps);\nconst bruto = 2000 + 5 * 100 * 1.5;\nconst esperado = bruto - bruto * 0.04 * 2;\nif (Math.abs(r[0].neto - esperado) > 0.01)\n  throw new Error(`Esperado ${esperado}, recibido ${r[0].neto}`);"
+    },
+    {
+      "id": "test-planilla-varios",
+      "description": "Planilla con varios empleados mantiene el orden",
+      "fn": "const emps = [\n  { nombre: 'A', salarioBase: 1000, horas: 40, tarifa: 10 },\n  { nombre: 'B', salarioBase: 2000, horas: 40, tarifa: 10 },\n];\nconst r = procesarPlanilla(emps);\nif (r[0].nombre !== 'A' || r[1].nombre !== 'B')\n  throw new Error('El orden debe preservarse');"
+    }
+  ],
+  "validators": {
+    "magic-numbers": "const lines = code.split('\\n'); const fb = lines.filter(l => { const t = l.trim(); return !t.startsWith('//') && !t.startsWith('*') && !/^const\\s+[A-Z_]+\\s*=/.test(t); }); const h = /\\b0\\.04\\b|\\b1\\.5\\b|\\b40\\b/.test(fb.join('\\n')); const hasConst = /const\\s+[A-Z][A-Z_]*\\s*=\\s*\\d/.test(code); return !h && hasConst ? 1 : hasConst ? 0.5 : 0;",
+    "long-method": "const m = code.match(/function\\s+\\w+/g); return (m || []).length >= 2;"
+  }
+}

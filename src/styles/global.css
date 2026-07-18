@@ -36,3 +36,33 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: #3e4451 transparent;
 }
+
+/* ── Decoraciones del editor (smells y avatar) ── */
+.smell-crit-line {
+  background: rgba(224,108,117,0.08);
+  border-left: 3px solid #e06c75;
+}
+.smell-warn-line {
+  background: rgba(229,192,123,0.06);
+  border-left: 3px solid #e5c07b;
+}
+.smell-crit-glyph {
+  background: #e06c75;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23e06c75'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23e06c75'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.smell-warn-glyph {
+  background: #e5c07b;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.avatar-highlight-line {
+  background: rgba(97,175,239,0.12);
+  outline: 1px solid rgba(97,175,239,0.25);
+  box-shadow: 0 0 8px rgba(97,175,239,0.15);
+}
+.avatar-glyph {
+  background: #61afef;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3a5 5 0 1 0 0 10A5 5 0 0 0 8 3z' fill='%2361afef'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3a5 5 0 1 0 0 10A5 5 0 0 0 8 3z' fill='%2361afef'/%3E%3C/svg%3E") center/contain no-repeat;
+}

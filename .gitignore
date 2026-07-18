@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Artefactos IA (graphify)
+.opencode/
+graphify-out/
+

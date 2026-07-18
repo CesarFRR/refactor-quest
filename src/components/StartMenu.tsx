@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { AsciiBox } from './AsciiBox'
-import { ASCII_TITLE } from '../data/asciiArt'
+import { RetroTitle } from './RetroTitle'
 
 interface Props {
   onStart: () => void
@@ -36,7 +35,7 @@ export function StartMenu({ onStart, levelCount }: Props) {
         alignItems: 'center', justifyContent: 'center',
         gap: 12,
       }}>
-        <AsciiBox lines={ASCII_TITLE} />
+        <RetroTitle width={1000} />
 
         <div style={{
           fontSize: 13, color: '#636d83', marginTop: 8,

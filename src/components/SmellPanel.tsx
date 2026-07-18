@@ -6,6 +6,8 @@ interface Props {
   state: GameState
   onRunTests: () => void
   running: boolean
+  /** Si true, bloquea la interacción (tutorial de Lenny) */
+  locked?: boolean
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -22,7 +24,7 @@ function calcInitialWidth(): number {
   return Math.min(Math.max(360, Math.round(window.innerWidth * 0.28)), 500)
 }
 
-export function SmellPanel({ level, state, onRunTests, running }: Props) {
+export function SmellPanel({ level, state, onRunTests, running, locked }: Props) {
   const [panelWidth, setPanelWidth] = useState(calcInitialWidth)
   const dragging = useRef(false)
   const startX = useRef(0)
@@ -59,9 +61,15 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
   }, [onMouseMove, onMouseUp])
 
   const allPassed = state.testResults.length > 0 && state.testResults.every((r) => r.passed)
-  const won = allPassed && state.stability >= 75 && state.code !== level.initialCode
+  const allSmellsFixed = level.smells.length === 0
+    || level.smells.every(s => state.smellStatus[s.id] === 'fixed')
+  // 'won' debe coincidir EXACTAMENTE con 'isComplete' de useGameState.applyTestResults
+  const won = allPassed && allSmellsFixed && state.stability >= 75 && state.code !== level.initialCode
   const codeChanged = state.code !== level.initialCode
-  const canRun = codeChanged && !running && !won
+  // canRun: el jugador SIEMPRE puede ejecutar tests si editó el código.
+  // Incluso si ya ganó: re-ejecutar dispara applyTestResults que abre el modal.
+  // Si locked (tutorial de Lenny), no puede ejecutar.
+  const canRun = codeChanged && !running && !locked
 
   return (
     <aside className="rq-panel" style={{
@@ -73,6 +81,15 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
       flexDirection: 'column',
       position: 'relative',
     }}>
+      {/* Overlay de bloqueo durante tutorial de Lenny */}
+      {locked && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'rgba(0,0,0,0.3)',
+          zIndex: 100,
+          pointerEvents: 'none',
+        }} />
+      )}
       {/* ── Contenido scrolleable ── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <Section label="Misión" color="#e5c07b">
@@ -84,12 +101,14 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
         <Section label="Smells detectados">
           {level.smells.map((smell) => {
             const status = state.smellStatus[smell.id]
+            const progress = state.smellProgress[smell.id] ?? 0
             const isFixed = status === 'fixed'
+            const isPartial = status === 'partial'
             return (
               <div key={smell.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', fontSize: 14 }}>
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: isFixed ? '#98c379' : SEVERITY_COLOR[smell.severity],
+                  background: isFixed ? '#98c379' : isPartial ? '#e5c07b' : SEVERITY_COLOR[smell.severity],
                 }} />
                 <span style={{
                   flex: 1, color: isFixed ? '#636d83' : '#abb2bf',
@@ -99,6 +118,13 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
                 </span>
                 {isFixed ? (
                   <span style={{ fontSize: 14, color: '#98c379', fontWeight: 600 }}>✓</span>
+                ) : isPartial ? (
+                  <span style={{
+                    fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
+                    background: 'rgba(229,192,123,0.12)', color: '#e5c07b',
+                  }}>
+                    {Math.round(progress * 100)}%
+                  </span>
                 ) : (
                   <span style={{
                     fontSize: 11, padding: '1px 5px', borderRadius: 3, fontWeight: 500,
@@ -161,7 +187,7 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
             width: '100%',
             padding: '9px 0',
             background: won ? '#98c379' : canRun ? '#61afef' : '#2c313a',
-            color: canRun || won ? '#1e2127' : '#636d83',
+            color: canRun ? '#1e2127' : '#636d83',
             border: 'none',
             borderRadius: 4,
             fontFamily: "'JetBrains Mono', monospace",
@@ -172,7 +198,7 @@ export function SmellPanel({ level, state, onRunTests, running }: Props) {
           }}
         >
           {running ? '⏳ Ejecutando…' :
-           won ? '✓ Nivel completado' :
+           won ? '✓ Ejecutar tests' :
            '▶ Ejecutar tests'}
         </button>
 

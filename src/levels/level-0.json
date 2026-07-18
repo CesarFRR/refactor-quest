@@ -1,0 +1,50 @@
+{
+  "id": 0,
+  "title": "Tu primer turno",
+  "narrative": "Bienvenido a RefactorQuest. Este código ya funciona — no tienes que arreglar nada. Sólo quieres aprender el flujo: editar código, ejecutar tests y leer el panel. Lenny te guía paso a paso.",
+  "energyBudget": 10,
+  "maxAttempts": 99,
+  "domain": "billing",
+  "tutorial": {
+    "avatarMode": "reveal-solution",
+    "autoRunTests": false,
+    "steps": [
+      {
+        "trigger": "level-start",
+        "message": "¡Hola! Soy Lenny. Mira el panel izquierdo: no hay smells — el código está limpio. La barra de estabilidad marca 50% porque faltan los tests: aún no sabemos si el código funciona.",
+        "highlightLine": 4,
+        "zone": "panel"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Mira, voy a editar el comentario por ti para que veas cómo funciona. Pulsa 'Siguiente paso' y observa el editor.",
+        "highlightLine": 2,
+        "zone": "editor",
+        "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Lenny! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "¡Ves? El código cambió y la barra inferior dice 'Sintaxis ✓ OK' y 'Compila ✓ listo'. Ahora te toca a ti: pulsa el botón '▶ Ejecutar tests' abajo del todo para verificar que funciona.",
+        "highlightLine": 14,
+        "zone": "footer"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "¡Recuerda! El flujo es: editar código → verificar sintaxis → ejecutar tests → subir estabilidad. Cuando la estabilidad llegue a 100%, el sistema estará completamente estabilizado.",
+        "highlightLine": 14,
+        "zone": "footer"
+      }
+    ]
+  },
+  "initialCode": "// Sistema de facturación — ejemplo básico\n// Edita este comentario para empezar.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n",
+  "solution": "// Sistema de facturación — ejemplo básico\n// Editado por el jugador.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n",
+  "smells": [],
+  "tests": [
+    {
+      "id": "test-total-con-iva",
+      "description": "El total incluye IVA (19%)",
+      "fn": "const items = [{ price: 100, qty: 2 }];\nconst result = processOrder(items, 'CLI-001');\nconst expected = 200 * 1.19;\nif (Math.abs(result.total - expected) > 0.01)\n  throw new Error(`Esperado ${expected}, recibido ${result.total}`);"
+    }
+  ],
+  "validators": {}
+}

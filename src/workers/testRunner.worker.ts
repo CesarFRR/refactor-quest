@@ -1,6 +1,11 @@
 /* ============================================================
    RefactorQuest — Web Worker: ejecuta tests en sandbox
    El código del jugador se evalúa aquí, aislado del hilo UI.
+
+   Dos tipos de mensaje:
+     - COMPILE_CHECK : sólo valida que el código parsea (new Function).
+                      No ejecuta nada. Barato, para feedback inmediato.
+     - RUN_TESTS     : ejecuta el código + cada test y reporta resultados.
    ============================================================ */
 
 type RunMessage = {
@@ -9,15 +14,46 @@ type RunMessage = {
   tests: Array<{ id: string; description: string; fn: string }>
 }
 
-self.onmessage = (event: MessageEvent<RunMessage>) => {
-  if (event.data.type !== 'RUN_TESTS') return
+type CompileMessage = {
+  type: 'COMPILE_CHECK'
+  code: string
+  seq?: number
+}
 
-  const { code, tests } = event.data
+type IncomingMessage = RunMessage | CompileMessage
+
+self.onmessage = (event: MessageEvent<IncomingMessage>) => {
+  const data = event.data
+
+  // ── Capa 2: sólo saber si el código parsea, sin ejecutarlo ──
+  if (data.type === 'COMPILE_CHECK') {
+    const seq = (data as CompileMessage).seq
+    try {
+      new Function(data.code)
+      self.postMessage({ type: 'COMPILE_RESULT', ok: true, seq })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      const lineMatch = msg.match(/line (\d+)|<anonymous>:(\d+)/i)
+      const line = lineMatch ? parseInt(lineMatch[1] ?? lineMatch[2], 10) : undefined
+      self.postMessage({
+        type: 'COMPILE_RESULT',
+        ok: false,
+        error: msg,
+        errorLine: line,
+        seq,
+      })
+    }
+    return
+  }
+
+  // ── Capa 3: ejecutar tests ──
+  if (data.type !== 'RUN_TESTS') return
+
+  const { code, tests } = data
   const results: Array<{ testId: string; passed: boolean; error?: string }> = []
 
   for (const test of tests) {
     try {
-      // eslint-disable-next-line no-new-func
       const fullScript = `
         ${code}
         ;(function() {
