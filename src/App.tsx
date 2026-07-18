@@ -334,7 +334,7 @@ export default function App() {
         </span>
       </footer>
 
-      {/* ── Cinematic blur: difumina TODO excepto Lenny ── */}
+      {/* ── Cinematic blur: difumina y BLOQUEA todo excepto Lenny ── */}
       {state.avatarCinematicBlur && (
         <div style={{
           position: 'fixed', inset: 0,
@@ -342,7 +342,7 @@ export default function App() {
           background: 'rgba(0,0,0,0.45)',
           backdropFilter: 'blur(6px)',
           WebkitBackdropFilter: 'blur(6px)',
-          pointerEvents: 'none',
+          pointerEvents: 'auto',
         }} />
       )}
 
@@ -356,10 +356,10 @@ export default function App() {
         }} />
       )}
 
-      {/* ── Rectángulo de resalte sobre la zona señalada ── */}
+      {/* ── Rectángulo de resalte sobre la zona señalada (oculto durante blur) ── */}
       <ZoneHighlightOverlay
         zoneId={state.avatarHighlightZone ?? (state.avatarHighlightLine ? 'editor' : undefined)}
-        visible={!!state.avatarMessage}
+        visible={!!state.avatarMessage && !state.avatarCinematicBlur}
       />
 
       {/* ── Avatar Lenny — asistente flotante abajo-derecha ── */}

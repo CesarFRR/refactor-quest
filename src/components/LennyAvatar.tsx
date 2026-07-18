@@ -141,48 +141,66 @@ export function LennyAvatar({
     return () => clearTimeout(t)
   }, [mood])
 
-  // Mirada sigue al cursor del mouse (sólo cuando está idle/talking)
+  // ── Seguimiento ocular optimizado ──
+  // Cache de centros de los ojos (evita getBoundingClientRect en cada frame)
   const [eyeTarget, setEyeTarget] = useState({ leftX: 0, leftY: 0, rightX: 0, rightY: 0 })
   const [cursorSeen, setCursorSeen] = useState(false)
   const lennyRef = useRef<HTMLDivElement>(null)
-  const mouseRafRef = useRef(0)
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (mood === 'sleeping' || mood === 'celebrating') return
-    cancelAnimationFrame(mouseRafRef.current)
-    mouseRafRef.current = requestAnimationFrame(() => {
-      const el = lennyRef.current
-      if (!el) return
+  const eyeCentersRef = useRef({ leftX: 0, rightX: 0, eyeCenterY: 0 })
+  const eyeRafRef = useRef(0)
+  const prevEyeRef = useRef({ leftX: 0, leftY: 0 })
+  // No seguir cursor cuando Lenny está hablando (mira al usuario)
+  const skipTracking = mood === 'sleeping' || mood === 'celebrating' || !!message
+
+  // Recalcular centros de ojos sólo cuando cambia el tamaño del contenedor
+  useEffect(() => {
+    const el = lennyRef.current
+    if (!el) return
+    const updateCenters = () => {
       const rect = el.getBoundingClientRect()
-      const leftCenterX = rect.left + rect.width * 0.31
-      const rightCenterX = rect.left + rect.width * 0.69
-      const eyeCenterY = rect.top + rect.height * 0.54
-      const max = 4
-      const clamp = (value: number) => Math.max(-max, Math.min(max, value))
-      const targetForEye = (centerX: number) => {
-        const edx = e.clientX - centerX
-        const edy = e.clientY - eyeCenterY
-        const dist = Math.sqrt(edx * edx + edy * edy)
-        return {
-          x: clamp(edx / Math.max(dist, 1) * max),
-          y: clamp(edy / Math.max(dist, 1) * max),
-        }
+      eyeCentersRef.current = {
+        leftX: rect.left + rect.width * 0.31,
+        rightX: rect.left + rect.width * 0.69,
+        eyeCenterY: rect.top + rect.height * 0.54,
       }
-      const left = targetForEye(leftCenterX)
-      const right = targetForEye(rightCenterX)
-      setEyeTarget({
-        leftX: left.x,
-        leftY: left.y,
-        rightX: right.x,
-        rightY: right.y,
-      })
+    }
+    updateCenters()
+    const ro = new ResizeObserver(updateCenters)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [size])
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (skipTracking) return
+    cancelAnimationFrame(eyeRafRef.current)
+    eyeRafRef.current = requestAnimationFrame(() => {
+      const { leftX, rightX, eyeCenterY } = eyeCentersRef.current
+      const max = 4
+      const clamp = (v: number) => Math.max(-max, Math.min(max, v))
+      const targetForEye = (centerX: number) => {
+        const dx = e.clientX - centerX
+        const dy = e.clientY - eyeCenterY
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        return { x: clamp(dx / Math.max(dist, 1) * max), y: clamp(dy / Math.max(dist, 1) * max) }
+      }
+      const left = targetForEye(leftX)
+      const right = targetForEye(rightX)
+      // Umbral: ignorar movimientos < 0.3px para evitar re-renders innecesarios
+      if (Math.abs(left.x - prevEyeRef.current.leftX) < 0.3 &&
+          Math.abs(left.y - prevEyeRef.current.leftY) < 0.3) return
+      prevEyeRef.current = { leftX: left.x, leftY: left.y }
+      setEyeTarget({ leftX: left.x, leftY: left.y, rightX: right.x, rightY: right.y })
       setCursorSeen(true)
     })
-  }, [mood])
+  }, [skipTracking])
 
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [handleMouseMove])
+
+  // Cuando Lenny habla, volver los ojos a la posición neutral
+  useEffect(() => { if (skipTracking) setCursorSeen(false) }, [skipTracking])
 
   // Desplazamiento de pupilas: cada ojo usa su propio vector contra el cursor.
   // No hay interpolación ni suavizado; el estado solo refleja la última posición del mouse.
