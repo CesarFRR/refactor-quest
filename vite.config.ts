@@ -4,6 +4,7 @@ import monacoEditorPluginModule from 'vite-plugin-monaco-editor'
 const monacoEditorPlugin = (monacoEditorPluginModule as any).default
 
 export default defineConfig({
+  base: '/refactor-quest/',
   plugins: [react(), monacoEditorPlugin({ globalAPI: true })],
   build: {
     target: 'esnext',
