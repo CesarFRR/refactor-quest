@@ -409,19 +409,20 @@ export default function App() {
 
       {/* ── Avatar Cody — asistente flotante abajo-derecha (oculto al completar nivel) ── */}
       {avatarMode !== 'off' && !levelCompleted && (
-        <CodyAvatar
-          mode={avatarMode}
-          message={state.avatarMessage}
-          highlightLine={state.avatarHighlightLine}
-          compileStatus={state.compileStatus}
-          zone={state.avatarZone}
-          onConfirmStep={confirmLabel ? confirmAvatarStep : undefined}
-          confirmLabel={confirmLabel}
-          onInjectGuided={injectLabel ? injectGuidedSmell : undefined}
-          injectLabel={injectLabel}
-          angryOnTest={angryOnTest}
-          avatarInjecting={state.avatarInjecting}
-        />
+          <CodyAvatar
+            mode={avatarMode}
+            message={state.avatarMessage}
+            highlightLine={state.avatarHighlightLine}
+            compileStatus={state.compileStatus}
+            zone={state.avatarZone}
+            onConfirmStep={confirmLabel ? confirmAvatarStep : undefined}
+            confirmLabel={confirmLabel}
+            onInjectGuided={injectLabel ? injectGuidedSmell : undefined}
+            injectLabel={injectLabel}
+            angryOnTest={angryOnTest}
+            avatarInjecting={state.avatarInjecting}
+            mood={state.avatarMood}
+          />
       )}
 
       {levelCompleted && (

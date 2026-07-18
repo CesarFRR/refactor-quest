@@ -37,11 +37,12 @@ function initialState(level: Level): GameState {
     avatarMessage: firstStep?.trigger === 'level-start' ? firstStep.message : undefined,
     avatarHighlightLine: firstStep?.highlightLine,
     avatarHighlightZone: firstStep?.highlightZone,
-        avatarCinematicBlur: firstStep?.cinematicBlur,
+    avatarCinematicBlur: firstStep?.cinematicBlur,
     avatarInjecting: false,
     injectTarget: undefined,
     avatarZone: firstStep?.zone ?? 'bottom-right',
     interactiveLock: firstStep?.interactiveLock ?? false,
+    avatarMood: firstStep?.mood,
   }
 }
 
@@ -124,6 +125,7 @@ function advanceAvatar(
   avatarInjecting: boolean
   avatarZone: AvatarZone
   interactiveLock: boolean
+  avatarMood?: string
 } {
   const tutorial = level.tutorial
   if (!tutorial || tutorial.avatarMode === 'off' || !tutorial.steps) {
@@ -165,6 +167,7 @@ function advanceAvatar(
       avatarInjecting: false,
       avatarZone: msg?.zone ?? 'bottom-right',
       interactiveLock: msg?.interactiveLock ?? false,
+      avatarMood: msg?.mood,
     }
   }
 
@@ -173,6 +176,7 @@ function advanceAvatar(
     avatarInjecting: false,
     avatarZone: 'bottom-right',
     interactiveLock: false,
+    avatarMood: undefined,
   }
 }
 
@@ -242,6 +246,7 @@ export function useGameState(level: Level) {
         injectTarget: undefined,
         avatarZone: avatar.avatarZone,
         interactiveLock: avatar.interactiveLock,
+        avatarMood: avatar.avatarMood,
       }
     })
     setChanged(code !== level.initialCode)
@@ -446,6 +451,7 @@ export function useGameState(level: Level) {
           avatarCinematicBlur: undefined,
           avatarZone: 'bottom-right' as const,
           interactiveLock: false,
+          avatarMood: undefined,
         }
       }
       const step = tutorial.steps![next]
@@ -458,6 +464,7 @@ export function useGameState(level: Level) {
         avatarCinematicBlur: step.cinematicBlur,
         avatarZone: step.zone ?? 'bottom-right',
         interactiveLock: step.interactiveLock ?? false,
+        avatarMood: step.mood,
       }
     })
   }, [level])
@@ -481,6 +488,7 @@ export function useGameState(level: Level) {
           avatarMessage: undefined, avatarHighlightLine: undefined,
           avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
           avatarZone: 'bottom-right' as const, interactiveLock: false,
+          avatarMood: undefined,
         }
       }
       const step = tutorial.steps![next]
@@ -494,6 +502,7 @@ export function useGameState(level: Level) {
         avatarCinematicBlur: step.cinematicBlur,
         avatarZone: step.zone ?? 'bottom-right',
         interactiveLock: step.interactiveLock ?? false,
+        avatarMood: step.mood,
       }
     })
   }, [level])

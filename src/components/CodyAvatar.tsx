@@ -8,7 +8,7 @@
    click en idle para recordar último mensaje.
    ============================================================ */
 import { useEffect, useState, useRef, useCallback } from 'react'
-import type { AvatarMode, AvatarZone, CompileStatus } from '../types'
+import type { AvatarMode, AvatarZone, CompileStatus, Mood } from '../types'
 
 function renderMarkdown(text: string): string {
   return text
@@ -37,9 +37,9 @@ interface Props {
   angryOnTest?: boolean
   /** Cody está escribiendo código (animación de pensamiento) */
   avatarInjecting?: boolean
+  /** Emoción explícita del paso (si se definió en el nivel) */
+  mood?: Mood
 }
-
-type Mood = 'idle' | 'talking' | 'pointing' | 'celebrating' | 'sleeping' | 'error' | 'thinking' | 'happy' | 'confused' | 'amazed'
 
 function pickMood(
   message: string | undefined,
@@ -58,8 +58,8 @@ function pickMood(
   if (message && /100%|completamente estabilizado|estabilizado|¡perfecto!|genial|excelente/i.test(message)) return 'celebrating'
   if (message && /¿\?|no entiendo|confund|algo está mal|revisa/i.test(message)) return 'confused'
   if (message && /¡wow!|increíble|asombro|felicidade/i.test(message)) return 'amazed'
-  if (highlightLine) return 'pointing'
   if (message) return 'talking'
+  if (highlightLine) return 'pointing'
   return 'idle'
 }
 
@@ -114,7 +114,7 @@ export function CodyAvatar({
   const lastActivityRef = useRef(0)
   const sleepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const mood = pickMood(message, highlightLine, compileStatus, mode, angryOnTest, avatarInjecting, isSleeping)
+  const mood = props.mood ?? pickMood(message, highlightLine, compileStatus, mode, angryOnTest, avatarInjecting, isSleeping)
 
   // Guardar último mensaje importante para poder recordarlo con click
   useEffect(() => {
@@ -210,7 +210,7 @@ export function CodyAvatar({
   const eyeCentersRef = useRef({ leftX: 0, rightX: 0, eyeCenterY: 0 })
   const eyeRafRef = useRef(0)
   const prevEyeRef = useRef({ leftX: 0, leftY: 0 })
-  const skipTracking = mood === 'sleeping' || mood === 'thinking' || mood === 'celebrating' || mood === 'happy' || !!message
+  const skipTracking = mood === 'sleeping' || mood === 'thinking' || mood === 'celebrating' || mood === 'happy' || mood === 'tired' || !!message
 
   useEffect(() => {
     const el = codyRef.current
@@ -275,6 +275,7 @@ export function CodyAvatar({
     mood === 'thinking'    ? '#61afef' :
     mood === 'error'       ? '#e06c75' :
     mood === 'confused'    ? '#e5c07b' :
+    mood === 'tired'       ? '#848a97' :
     mood === 'sleeping'    ? '#848a97' :
                               '#848a97'
 
@@ -321,6 +322,7 @@ export function CodyAvatar({
     mood === 'thinking' ? 'cody-bounce 0.6s ease infinite' :
     mood === 'happy' ? 'cody-pulse 1.2s ease infinite' :
     mood === 'confused' ? 'cody-wiggle 0.5s ease' :
+    mood === 'tired' ? undefined :
     mood === 'amazed' ? 'cody-bounce 0.8s ease' :
     undefined
 
@@ -518,6 +520,15 @@ function Eyebrows({ mood, color }: { mood: Mood; color: string }) {
       </g>
     )
   }
+  if (mood === 'tired') {
+    // \ \  — ligeramente hacia abajo (cansancio)
+    return (
+      <g stroke={stroke} strokeWidth={sw} fill="none" strokeLinecap="round">
+        <path d="M15 25 Q20 27 25 25" />
+        <path d="M45 25 Q50 27 55 25" />
+      </g>
+    )
+  }
   return null
 }
 
@@ -536,8 +547,9 @@ function CodySvg({
   accent: string
 }) {
   // Párpados felices (anime ^_^) para happy/celebrating: ojos cerrados curva hacia arriba
+  const tiredEyes = mood === 'tired'
   const happyEyes = mood === 'happy' || mood === 'celebrating'
-  const eyeOpen = !blink && mood !== 'sleeping' && mood !== 'thinking' && !happyEyes
+  const eyeOpen = !blink && mood !== 'sleeping' && mood !== 'thinking' && !happyEyes && !tiredEyes
   const bodyGray = '#00000000'
   const bodyGrayDark = '#00000000'
   const bodyGrayLight = '#00000000'
@@ -594,6 +606,12 @@ function CodySvg({
           <path d="M15 36 Q20 30 25 36" stroke={accent} strokeWidth="2" fill="none" strokeLinecap="round" />
           <path d="M45 36 Q50 30 55 36" stroke={accent} strokeWidth="2" fill="none" strokeLinecap="round" />
         </>
+      ) : tiredEyes ? (
+        /* Ojos cansados — líneas cortas, entreabiertos */
+        <>
+          <line x1="17" y1="35.5" x2="23" y2="34.5" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="47" y1="35.5" x2="53" y2="34.5" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+        </>
       ) : (
         /* Párpados normales cerrados (sleeping/blink) */
         <>
@@ -638,6 +656,10 @@ function CodySvg({
           <text x="44" y="14" fontSize="10" style={{ animation: 'cody-z-float 3s ease 1s infinite' }}>z</text>
           <text x="44" y="14" fontSize="10" style={{ animation: 'cody-z-float 3s ease 2s infinite' }}>z</text>
         </g>
+      )}
+
+      {mood === 'tired' && (
+        <text x="35" y="12" fontSize="9" fill="#848a97" textAnchor="middle" fontFamily="'JetBrains Mono', monospace">...</text>
       )}
 
       {mood === 'thinking' && (
