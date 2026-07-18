@@ -11,19 +11,19 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "Segundo smell: Long Method. Mira calcularLiquidacion — hace 5 cosas distintas en 30 líneas. Cuando una función hace demasiado, cuesta leerla y testearla. Vamos a dividirla.",
+        "message": "**Long Method**. Ufff, esta me duele. calcularLiquidacion hace de todo: bruto, extras, retención, salud, pensión, neto, formatea boleta... 30 LÍNEAS. He visto funciones así en producción y son como cajas de Pandora: nadie sabe qué hace cada parte. Vamos a dividir esa bestia.",
         "highlightLine": 4,
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Paso 1: extrae calcBruto(empleado). Toma empleado.salarioBase y empleado.horas, devuelve el bruto (con horas extras al 50% si pasas de 40). Llámala desde calcularLiquidacion. Pulsa 'Siguiente' cuando la hayas escrito.",
+        "message": "Paso 1: extrae calcBruto(empleado) con la lógica del salario y horas extras. Así la función principal respira. Cuando lo tengas, pulsa 'Siguiente'. No tengas miedo, yo confío en ti. Bueno, un poco de miedo sí — pero normal.",
         "highlightLine": 6,
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Paso 2: extrae calcDescuentos(bruto) — devuelve {salud, pension, retencion}. Y calcNeto(bruto, descuentos). Sigue extrayendo funciones. Cuando tengas 3+ funciones declaradas, el smell se marcará corregido.",
+        "message": "Paso 2: extrae calcDescuentos(bruto) y formatBoleta(...). Saca todo lo que no sea 'orquestar'. Cuando tengas 3+ funciones además de calcularLiquidacion, el smell se dará por vencido. Verás qué alivio cuando cada función haga UNA SOLA COSA.",
         "highlightLine": 18,
         "zone": "editor",
         "waitForSmell": "long-method"

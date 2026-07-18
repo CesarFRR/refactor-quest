@@ -13,7 +13,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "Nivel final — sistema legacy de facturación con **3 smells**: Long Method, Magic Numbers y Duplicate Code. Yo puedo encargarme del Long Method si quieres: pulsa 'Deja que Cody ayude 🤝' y dividiré processOrder para ti. Tú encárgate de los Magic Numbers y el Duplicate Code.",
+        "message": "El nivel final. **3 smells** en un sistema legacy de facturación que ha sobrevivido a 3 equipos distintos y una reestructuración. Este código tiene historia. Algunas partes las escribí yo hace años y... bueno, no es mi mejor trabajo. **Long Method**, **Magic Numbers** y **Duplicate Code**. El Long Method es el más denso; si quieres, puedo dividir processOrder por ti. Pulsa 'Deja que Cody ayude' y lo hago. Los otros dos son tuyos.",
         "highlightLine": 4,
         "zone": "editor"
       }

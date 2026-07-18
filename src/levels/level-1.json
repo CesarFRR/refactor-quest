@@ -11,13 +11,13 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "Bienvenido al primer refactor real. Mira el panel izquierdo: hay 1 smell, 'Magic Numbers'. Eso significa que hay números sueltos en el código sin nombre. Tu misión: convertirlos en constantes.",
+        "message": "Primer refactor de verdad. **Magic Numbers**. Ay, los odio. Esos 0.04, 0.04, 0.04... ¿cuál es salud, cuál es pensión? NADIE LO SABE. Una vez debuggeé 3 horas por un 0.03 que debía ser 0.04. Ponles nombre. Por tu salud mental.",
         "highlightLine": 5,
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Arriba del todo (antes de la función), escribe: const TASA_SALUD = 0.04; y luego reemplaza el 0.04 de la línea 5 por TASA_SALUD. Haz lo mismo con la pensión. Cuando el smell se marque corregido, seguiré.",
+        "message": "Arriba de la función, escribe: const TASA_SALUD = 0.04; y reemplaza el 0.04 de la línea 5 por TASA_SALUD. Luego TASA_PENSION para el otro 0.04. Cuando el smell se marque como corregido, seguimos. Es terapéutico, ya verás.",
         "highlightLine": 5,
         "zone": "editor",
         "waitForSmell": "magic-numbers"

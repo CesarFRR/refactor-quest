@@ -11,13 +11,13 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "¡Hola! Soy **Lupa**, tu asistente en RefactorQuest. Este es un juego donde aprenderás a **refactorizar código**: identificar problemas ocultos (code smells) limpiarlos y hacer que el sistema funcione perfectamente.",
+        "message": "¡Hola! Soy **Lupa**. Llevo años en las trincheras del código heredado y créeme: he visto cosas que no creerías. Este es RefactorQuest, donde aprenderás a oler el código podrido y limpiarlo antes de que se coma vivo al proyecto.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },
       {
         "trigger": "step-confirmed",
-        "message": "En cada nivel recibirás un código con fallos. Tu trabajo es editarlo, ejecutar pruebas y estabilizar el sistema. Yo te guiaré al principio. ¿Listo? Conozcamos el tablero.",
+        "message": "Cada nivel te tira código con olor a viejo. Tu trabajo: editarlo, correr pruebas y dejar el sistema estable. Al principio te tomo de la mano. Después... estarás solo. ¿Listo? Conozcamos el tablero.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },
@@ -29,56 +29,56 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Aquí están los **Smells detectados**. Son fragmentos de código problemáticos: puede haber *críticos* (rojo, urgentes) y *warnings* (amarillo, mejorables). Cada smell consume energía al refactorizarlo. Cuando lo corrijas, aparecerá tachado con un ✓.",
+        "message": "Aquí, los **Smells detectados**. Son代码 que apesta — perdón, código con problemas. Los *críticos* (rojo) son incendios activos. Los *warnings* (amarillo) son goteras. Ambos consumen energía arreglarlos. Cuando lo logres, aparecen tachados con ✓. Es catártico.",
         "highlightZone": "smells-list",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "La barra de **Estabilidad del sistema** mide qué tan saludable está el código. Sube al 100% cuando arregles todos los smells y todos los tests pasen. Por ahora está en 50% porque no hemos ejecutado tests.",
+        "message": "La **Estabilidad del sistema** mide qué tan vivo está el código. Llega al 100% cuando todos los smells están muertos y los tests pasan. Ahora está en 50% — como un paciente en sala de espera.",
         "highlightZone": "stability",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "La **Energía disponible** es tu recurso para refactorizar. Cada smell tiene un costo. Si se agota, no podrás seguir — tendrás que reiniciar el nivel. ¡Gástala con cuidado!",
+        "message": "La **Energía disponible** es tu café mental. Cada smell te cuesta un poco. Si llega a cero, toca reiniciar el nivel. Gástala como si fuera el último día del sprint.",
         "highlightZone": "energy",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Este es el **Editor de código**. Aquí escribes y modificas el código. A la izquierda verás los números de línea. Yo te señalaré líneas específicas cuando necesites mirar algo.",
+        "message": "Este es el **Editor**. Tu campo de batalla. A la izquierda, números de línea. Cuando veas una línea con fondo amarillo, ahí está el smell. Yo te señalaré con mi dedo las líneas clave. No me ignores, duele.",
         "highlightZone": "editor",
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Al fondo está el botón **▶ Ejecutar tests**. Púlsalo para verificar si tu código funciona. Los resultados salen justo debajo: ✓ (pasa) o ✗ (falla). ¡Pruébalo cuando quieras!",
+        "message": "Al fondo, **▶ Ejecutar tests**. Mi botón favorito. Lo pulsas, y te digo si el código respira o está en coma. ✓ pasa, ✗ falla. Pruébalo cuando quieras — no muerde.",
         "highlightZone": "run-tests",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Y arriba a la derecha van las **Estadísticas**: tests pasados, intentos y estabilidad. En la barra inferior verás más detalles: Sintaxis (errores en rojo), Compilación y Fase del nivel.",
+        "message": "Arriba a la derecha, las **Estadísticas**: tests pasados, intentos, estabilidad. Abajo verás más: Sintaxis (errores en rojo), Compilación y Fase. Info de batalla, básicamente.",
         "highlightZone": "header-stats",
         "zone": "footer"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Ahora observa cómo funciona: voy a editar el código por ti. Pulsa 'Siguiente'.",
+        "message": "Mira cómo se hace: voy a editar el código por ti. Pulsa 'Siguiente' y verás magia.",
         "highlightZone": "editor",
         "zone": "editor",
         "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Lupa! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡El código cambió! Ahora pruébalo tú: busca el botón **▶ Ejecutar tests** y haz clic. Verás el resultado y la estabilidad subirá — ese es el flujo básico del juego.",
+        "message": "¡El código cambió! Ahora hazlo tú: **▶ Ejecutar tests**. La estabilidad subirá y sentirás esa dopamina. Ese es el ciclo: editar, probar, celebrar.",
         "highlightZone": "run-tests",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡Perfecto! Recuerda el ciclo: 🛠️ editar código → ✅ verificar sintaxis → 🧪 ejecutar tests → 📈 subir estabilidad. Cuando todo esté al 100% y todos los smells arreglados, completarás el nivel. ¡A refactorizar!",
+        "message": "¡Perfecto! El ciclo: 🛠️ editar → ✅ compilar → 🧪 testear → 📈 estabilizar. Todo al 100% y smells arreglados = nivel completado. ¡A practicar, que esto se pone intenso!",
         "highlightZone": "editor",
         "zone": "editor"
       }

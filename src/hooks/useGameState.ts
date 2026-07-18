@@ -378,7 +378,7 @@ export function useGameState(level: Level) {
         avatarInjecting: false,
         injectTarget: undefined,
         avatarActive: false,
-        avatarMessage: '¡Yo me encargo de este! Tú haz los otros dos.',
+        avatarMessage: 'Listo, ya dividí processOrder. El Long Method está domado. Los otros dos smells son tuyos — Magic Numbers y Duplicate Code. ¡Tú puedes! (O si no, aquí estoy).',
       }
     })
     setChanged(true)

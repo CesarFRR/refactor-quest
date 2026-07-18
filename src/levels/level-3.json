@@ -13,13 +13,13 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "¡Otro smell! Este es **Duplicate Code**. Mira generarBoletaEmpleado y generarBoletaContratista — las dos tienen exactamente el mismo bloque de formateo 'Empleado: ... Bruto: ... Neto: ...'. Crea una función formatBoleta(nombre, tipo, bruto, neto) compartida y llámala desde ambas.",
+        "message": "**Duplicate Code**. Ay, el copy-paste. El peor enemigo del programador. Mira esas dos funciones: GENERAN LA MISMA BOLETA. Alguien hizo copy-paste y ahora hay que cambiar el mismo código en dos sitios. Como cuando arreglas un bug y aparece el mismo bug en otra función. Me hierve la sangre. Crea formatBoleta() compartida y úsala desde ambas.",
         "highlightLine": 5,
         "zone": "editor"
       },
       {
         "trigger": "idle-ms",
-        "message": "¿Te trabaste? Mira las dos funciones: generarBoletaEmpleado y generarBoletaContratista. Las dos repiten el bloque 'Empleado: ... Bruto: ... Neto: ...'. Extrae una función formatBoleta(datos, tipo) y llámala desde ambas.",
+        "message": "¿Te trabaste? Respira. Mira las dos funciones. El bloque de 'Empleado: ... Bruto: ... Neto: ...' está copiado. Crea formatBoleta(nombre, tipo, bruto, neto) que haga eso UNA VEZ y llama desde ambas. DRY: Don't Repeat Yourself. No te repitas. Es como lavar dos platos cuando puedes lavar uno.",
         "highlightLine": 5
       }
     ]
