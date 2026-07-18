@@ -12,7 +12,7 @@ import Editor, { useMonaco, loader } from '@monaco-editor/react'
 import * as monacoPkg from 'monaco-editor'
 import type { editor } from 'monaco-editor'
 import type { CodeSmell, SyntaxMarker } from '../types'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Usar la copia local de Monaco en lugar de cargar desde CDN
 loader.config({ monaco: monacoPkg })
@@ -60,6 +60,7 @@ interface Props {
 
 export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete }: Props) {
   const monaco = useMonaco()
+  const [editor, setEditor] = useState<editor.IStandaloneCodeEditor | null>(null)
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const smellDecoIds = useRef<string[]>([])
   const avatarDecoIds = useRef<string[]>([])
@@ -127,12 +128,10 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
 
   // Notificar markers al hook (Capa 1: sintaxis en tiempo real)
   useEffect(() => {
-    if (!monaco || !editorRef.current || !onMarkersChange) return
-    const model = editorRef.current.getModel()
-    if (!model) return
+    if (!monaco || !editor || !onMarkersChange) return
     const push = () => {
       try {
-        const model = editorRef.current?.getModel()
+        const model = editor.getModel()
         if (!model) return
         const raw = monaco.editor.getModelMarkers({ resource: model.uri })
         const markers: SyntaxMarker[] = raw.map(m => ({
@@ -150,12 +149,11 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
     push()
     const sub = monaco.editor.onDidChangeMarkers(() => push())
     return () => sub.dispose()
-  }, [monaco, onMarkersChange])
+  }, [monaco, editor, onMarkersChange])
 
   // Decoraciones: subrayados ondulados sobre los smells.
   useEffect(() => {
-    if (!monaco || !editorRef.current) return
-    const ed = editorRef.current
+    if (!monaco || !editor) return
     const decorations = smells.map((smell) => ({
       range: new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1),
       options: {
@@ -167,22 +165,21 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
       },
     }))
-    smellDecoIds.current = ed.deltaDecorations(smellDecoIds.current, decorations)
+    smellDecoIds.current = editor.deltaDecorations(smellDecoIds.current, decorations)
     return () => {
       if (smellDecoIds.current.length > 0) {
-        ed.deltaDecorations(smellDecoIds.current, [])
+        editor.deltaDecorations(smellDecoIds.current, [])
         smellDecoIds.current = []
       }
     }
-  }, [monaco, smells])
+  }, [monaco, smells, editor])
 
   // Resaltar línea señalada por el avatar
   useEffect(() => {
-    if (!monaco || !editorRef.current) return
-    const ed = editorRef.current
+    if (!monaco || !editor) return
     if (!avatarHighlightLine) {
       if (avatarDecoIds.current.length > 0) {
-        ed.deltaDecorations(avatarDecoIds.current, [])
+        editor.deltaDecorations(avatarDecoIds.current, [])
         avatarDecoIds.current = []
       }
       return
@@ -196,14 +193,14 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         overviewRuler: { color: '#61afef', position: 4 },
       },
     }]
-    avatarDecoIds.current = ed.deltaDecorations(avatarDecoIds.current, deco)
+    avatarDecoIds.current = editor.deltaDecorations(avatarDecoIds.current, deco)
     return () => {
       if (avatarDecoIds.current.length > 0) {
-        ed.deltaDecorations(avatarDecoIds.current, [])
+        editor.deltaDecorations(avatarDecoIds.current, [])
         avatarDecoIds.current = []
       }
     }
-  }, [monaco, avatarHighlightLine])
+  }, [monaco, editor, avatarHighlightLine])
 
   return (
     <div style={{
@@ -229,7 +226,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         defaultLanguage="javascript"
         value={avatarInjecting ? undefined : code}
         theme="one-dark-pro"
-        onMount={(ed) => { editorRef.current = ed }}
+          onMount={(ed) => { editorRef.current = ed; setEditor(ed) }}
         onChange={(v) => {
           if (!avatarInjecting) onChange(v ?? '')
         }}

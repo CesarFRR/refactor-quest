@@ -39,12 +39,12 @@ html, body, #root {
 
 /* ── Decoraciones del editor (smells y avatar) — todo amarillo ── */
 .smell-crit-line {
-  background: rgba(229,192,123,0.35);
-  border-left: 4px solid #e5c07b;
+  background: rgba(229,192,123,0.5);
+  border-left: 5px solid #e5c07b;
 }
 .smell-warn-line {
-  background: rgba(229,192,123,0.18);
-  border-left: 3px solid #e5c07b;
+  background: rgba(229,192,123,0.3);
+  border-left: 4px solid #e5c07b;
 }
 .smell-crit-glyph {
   background: #e5c07b;
