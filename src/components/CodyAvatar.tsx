@@ -99,6 +99,7 @@ export function CodyAvatar({
   injectLabel,
   angryOnTest,
   avatarInjecting,
+  mood: moodProp,
 }: Props) {
   const [blink, setBlink] = useState(false)
   const [dismissed, setDismissed] = useState(false)
@@ -114,7 +115,7 @@ export function CodyAvatar({
   const lastActivityRef = useRef(0)
   const sleepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const mood = props.mood ?? pickMood(message, highlightLine, compileStatus, mode, angryOnTest, avatarInjecting, isSleeping)
+  const mood = moodProp ?? pickMood(message, highlightLine, compileStatus, mode, angryOnTest, avatarInjecting, isSleeping)
 
   // Guardar último mensaje importante para poder recordarlo con click
   useEffect(() => {
