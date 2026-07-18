@@ -275,25 +275,27 @@ export default function App() {
           running={running}
           locked={state.interactiveLock}
         />
-        <EditorPanel
-          code={state.code}
-          smells={currentLevel.smells}
-          onChange={handleCodeChange}
-          avatarHighlightLine={state.avatarHighlightLine}
-          onMarkersChange={handleMarkersChange}
-          readOnly={state.interactiveLock}
-        />
-        {/* Rectángulo de resalte universal cuando Lenny señala algo */}
-        {state.avatarHighlightLine && state.avatarMessage && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            border: '2px solid rgba(97,175,239,0.3)',
-            borderRadius: 4,
-            pointerEvents: 'none',
-            zIndex: 60,
-            boxShadow: 'inset 0 0 20px rgba(97,175,239,0.08)',
-          }} />
-        )}
+        <div style={{ position: 'relative', flex: 1 }}>
+          <EditorPanel
+            code={state.code}
+            smells={currentLevel.smells}
+            onChange={handleCodeChange}
+            onMarkersChange={handleMarkersChange}
+            readOnly={state.interactiveLock}
+          />
+          {/* Rectángulo de resalte Z-INDEX ALTO sobre el editor */}
+          {state.avatarHighlightLine && state.avatarMessage && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              border: '2px solid rgba(97,175,239,0.4)',
+              borderRadius: 4,
+              pointerEvents: 'none',
+              zIndex: 99999,
+              background: 'rgba(97,175,239,0.04)',
+              boxShadow: 'inset 0 0 40px rgba(97,175,239,0.1), 0 0 30px rgba(97,175,239,0.08)',
+            }} />
+          )}
+        </div>
       </main>
 
       {/* ── Barra inferior: 3 capas de inmediatez ── */}

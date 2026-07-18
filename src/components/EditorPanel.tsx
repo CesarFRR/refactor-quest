@@ -42,17 +42,15 @@ interface Props {
   code: string
   smells: CodeSmell[]
   onChange: (value: string) => void
-  avatarHighlightLine?: number
   onMarkersChange?: (markers: SyntaxMarker[]) => void
   /** Si true, el editor es readOnly (bloqueo tutorial de Lenny) */
   readOnly?: boolean
 }
 
-export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly }: Props) {
+export function EditorPanel({ code, smells, onChange, onMarkersChange, readOnly }: Props) {
   const monaco = useMonaco()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const smellDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
-  const avatarDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
 
   // Registrar tema One Dark Pro cuando Monaco esté listo
   useEffect(() => {
