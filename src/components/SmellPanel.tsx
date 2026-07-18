@@ -6,7 +6,7 @@ interface Props {
   state: GameState
   onRunTests: () => void
   running: boolean
-  /** Si true, bloquea la interacción (tutorial de Lenny) */
+  /** Si true, bloquea la interacción (tutorial de Cody) */
   locked?: boolean
 }
 
@@ -68,7 +68,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
   const codeChanged = state.code !== level.initialCode
   // canRun: el jugador SIEMPRE puede ejecutar tests si editó el código.
   // Incluso si ya ganó: re-ejecutar dispara applyTestResults que abre el modal.
-  // Si locked (tutorial de Lenny), no puede ejecutar.
+  // Si locked (tutorial de Cody), no puede ejecutar.
   const canRun = codeChanged && !running && !locked
 
   return (
@@ -81,7 +81,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
       flexDirection: 'column',
       position: 'relative',
     }}>
-      {/* Overlay de bloqueo durante tutorial de Lenny */}
+      {/* Overlay de bloqueo durante tutorial de Cody */}
       {locked && (
         <div style={{
           position: 'absolute', inset: 0,
@@ -99,16 +99,25 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
         </Section>
 
         <Section label="Smells detectados" zoneId="smells-list">
-          <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
-            {(() => {
-              const crit = level.smells.filter(s => s.severity === 'critical').length
-              const warn = level.smells.filter(s => s.severity === 'warning').length
-              const critFixed = level.smells.filter(s => s.severity === 'critical' && state.smellStatus[s.id] === 'fixed').length
-              const warnFixed = level.smells.filter(s => s.severity === 'warning' && state.smellStatus[s.id] === 'fixed').length
-              return <><span style={{ fontSize: 12, color: '#e06c75', fontWeight: 600 }}>{crit - critFixed} críticos</span>
-                <span style={{ fontSize: 12, color: '#e5c07b', fontWeight: 600 }}>{warn - warnFixed} warnings</span></>
-            })()}
-          </div>
+          {(() => {
+            // Agrupar smells por nombre y contar
+            const groups: Record<string, { count: number; fixed: number; severity: string }> = {}
+            for (const s of level.smells) {
+              if (!groups[s.name]) groups[s.name] = { count: 0, fixed: 0, severity: s.severity }
+              groups[s.name].count++
+              if (state.smellStatus[s.id] === 'fixed') groups[s.name].fixed++
+            }
+            return <div style={{ display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
+              {Object.entries(groups).map(([name, g]) => {
+                const remaining = g.count - g.fixed
+                if (remaining <= 0) return null
+                const color = g.severity === 'critical' ? '#e06c75' : '#e5c07b'
+                return <span key={name} style={{ fontSize: 12, color, fontWeight: 600 }}>
+                  {name}: {remaining}
+                </span>
+              })}
+            </div>
+          })()}
           {level.smells.map((smell) => {
             const status = state.smellStatus[smell.id]
             const progress = state.smellProgress[smell.id] ?? 0

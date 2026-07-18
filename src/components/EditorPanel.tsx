@@ -2,7 +2,7 @@
    RefactorQuest — EditorPanel
    Panel derecho (~70%): Monaco Editor con tema One Dark Pro.
    Expone markers de sintaxis (Capa 1 de inmediatez) y resalta
-   la línea que el avatar Lenny señala.
+   la línea que el avatar Cody señala.
 
    Sugerencias limitadas al código del editor (sin APIs nativas):
    noLib=true deshabilita lib.d.ts, wordBasedSuggestions=off
@@ -48,11 +48,13 @@ interface Props {
   onChange: (value: string) => void
   avatarHighlightLine?: number
   onMarkersChange?: (markers: SyntaxMarker[]) => void
-  /** Si true, el editor es readOnly (bloqueo tutorial de Lenny) */
+  /** Si true, el editor es readOnly (bloqueo tutorial de Cody) */
   readOnly?: boolean
+  /** Cody está escribiendo código (animación) */
+  avatarInjecting?: boolean
 }
 
-export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly }: Props) {
+export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting }: Props) {
   const monaco = useMonaco()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const smellDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
@@ -181,7 +183,10 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
   }, [monaco, avatarHighlightLine])
 
   return (
-    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div style={{
+      flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative',
+      transition: 'filter 1.2s ease',
+    }}>
       {readOnly && (
         <div style={{
           position: 'absolute', inset: 0,
@@ -189,6 +194,24 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
           zIndex: 100,
           pointerEvents: 'none',
         }} />
+      )}
+      {avatarInjecting && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          zIndex: 99,
+          pointerEvents: 'none',
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end',
+          padding: '12px 16px',
+        }}>
+          <span style={{
+            fontSize: 12, color: '#61afef', fontWeight: 500,
+            background: 'rgba(97,175,239,0.1)',
+            padding: '4px 10px', borderRadius: 4,
+            letterSpacing: '0.05em',
+          }}>
+            ⌨ escribiendo…
+          </span>
+        </div>
       )}
       <Editor
         height="100%"

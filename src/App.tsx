@@ -4,7 +4,7 @@ import { EditorPanel } from './components/EditorPanel'
 import { LevelComplete } from './components/LevelComplete'
 import { LevelSelect } from './components/LevelSelect'
 import { StartMenu } from './components/StartMenu'
-import { LennyAvatar } from './components/LennyAvatar'
+import { CodyAvatar } from './components/CodyAvatar'
 import { ZoneHighlightOverlay } from './components/ZoneHighlightOverlay'
 import { useGameState } from './hooks/useGameState'
 import { useTestRunner } from './hooks/useTestRunner'
@@ -48,7 +48,7 @@ export default function App() {
     return base
   })
 
-  // ── Syntax markers del editor (para Lenny enojado) ──
+  // ── Syntax markers del editor (para Cody enojado) ──
   const [syntaxMarkers, setSyntaxMarkers] = useState<SyntaxMarker[]>([])
   const hasErrorMarkers = useMemo(() => syntaxMarkers.some(m => m.severity === 'error'), [syntaxMarkers])
 
@@ -71,7 +71,7 @@ export default function App() {
   const prevRunning = useRef(running)
   const prevLevelId = useState<number>(currentLevel.id)
   const justChangedLevel = useRef(false)
-  // Lenny se enoja si hay errores de sintaxis y el jugador da a Ejecutar tests
+  // Cody se enoja si hay errores de sintaxis y el jugador da a Ejecutar tests
   const [angryOnTest, setAngryOnTest] = useState(false)
 
   // ── Reset sincrónico al cambiar de nivel (adjust-during-render con useState) ──
@@ -218,7 +218,7 @@ export default function App() {
     undefined
 
   const injectLabel =
-    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Lenny ayude 🤝' : undefined
+    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Cody ayude 🤝' : undefined
 
   if (screen === 'menu') {
     return <StartMenu onStart={() => setScreen('select')} levelCount={levels.length} />
@@ -304,6 +304,7 @@ export default function App() {
             avatarHighlightLine={state.avatarHighlightLine}
             onMarkersChange={handleMarkersChange}
             readOnly={state.interactiveLock}
+            avatarInjecting={state.avatarInjecting}
           />
         </div>
       </main>
@@ -334,7 +335,7 @@ export default function App() {
         </span>
       </footer>
 
-      {/* ── Cinematic blur: difumina y BLOQUEA todo excepto Lenny ── */}
+      {/* ── Cinematic blur: difumina y BLOQUEA todo excepto Cody ── */}
       {state.avatarCinematicBlur && (
         <div style={{
           position: 'fixed', inset: 0,
@@ -346,7 +347,7 @@ export default function App() {
         }} />
       )}
 
-      {/* ── Overlay sutil cuando Lenny señala algo ── */}
+      {/* ── Overlay sutil cuando Cody señala algo ── */}
       {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && (
         <div style={{
           position: 'fixed', inset: 0,
@@ -362,9 +363,9 @@ export default function App() {
         visible={!!state.avatarMessage && !state.avatarCinematicBlur}
       />
 
-      {/* ── Avatar Lenny — asistente flotante abajo-derecha ── */}
+      {/* ── Avatar Cody — asistente flotante abajo-derecha ── */}
       {avatarMode !== 'off' && (
-        <LennyAvatar
+        <CodyAvatar
           mode={avatarMode}
           message={state.avatarMessage}
           highlightLine={state.avatarHighlightLine}

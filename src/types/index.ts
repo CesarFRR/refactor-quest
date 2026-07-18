@@ -22,20 +22,20 @@ export interface CodeSmell {
 /** Dominio temático del nivel (para pédagogía por capas) */
 export type Domain = 'billing' | 'payroll'
 
-/** Modos de intervención del avatar Lenny */
+/** Modos de intervención del avatar Cody */
 export type AvatarMode =
-  | 'reveal-solution'   // Lenny hace todo, jugador observa (nivel 0)
-  | 'walkthrough'       // Lenny guía paso a paso (niveles 1-2)
-  | 'hint-on-stuck'     // Lenny mudo hasta que el jugador se traba (niveles 3-4)
-  | 'guided-smell'      // Lenny resuelve 1 smell y suelta al jugador (nivel 6)
-  | 'off'               // Lenny mudo permanente (nivel 5)
+  | 'reveal-solution'   // Cody hace todo, jugador observa (nivel 0)
+  | 'walkthrough'       // Cody guía paso a paso (niveles 1-2)
+  | 'hint-on-stuck'     // Cody mudo hasta que el jugador se traba (niveles 3-4)
+  | 'guided-smell'      // Cody resuelve 1 smell y suelta al jugador (nivel 6)
+  | 'off'               // Cody mudo permanente (nivel 5)
 
 /**
- * Zona del juego donde Lenny se posiciona para señalar.
+ * Zona del juego donde Cody se posiciona para señalar.
  * - 'bottom-right': posición por defecto (esquina inferior derecha)
- * - 'panel': Lenny se mueve junto al SmellPanel (izquierda)
- * - 'editor': Lenny se mueve junto al EditorPanel (derecha)
- * - 'footer': Lenny se mueve junto a la barra inferior
+ * - 'panel': Cody se mueve junto al SmellPanel (izquierda)
+ * - 'editor': Cody se mueve junto al EditorPanel (derecha)
+ * - 'footer': Cody se mueve junto a la barra inferior
  */
 export type AvatarZone = 'bottom-right' | 'panel' | 'editor' | 'footer'
 
@@ -66,7 +66,7 @@ export const ZONE_IDS = {
 
 export type ZoneId = (typeof ZONE_IDS)[keyof typeof ZONE_IDS]
 
-/** Un paso del walkthrough guiado por Lenny */
+/** Un paso del walkthrough guiado por Cody */
 export interface AvatarStep {
   trigger: AvatarTrigger
   message: string
@@ -75,29 +75,29 @@ export interface AvatarStep {
   highlightZone?: ZoneId
   /** ID del smell que debe quedar 'fixed' para avanzar (cuando trigger es 'smell-fixed') */
   waitForSmell?: string
-  /** Para 'reveal-solution': código que Lenny escribe en el editor en este paso */
+  /** Para 'reveal-solution': código que Cody escribe en el editor en este paso */
   injectCode?: string
   /**
-   * Zona donde Lenny se posiciona durante este paso.
-   * Si se omite, Lenny se queda en 'bottom-right'.
+   * Zona donde Cody se posiciona durante este paso.
+   * Si se omite, Cody se queda en 'bottom-right'.
    */
   zone?: AvatarZone
   /**
    * Si true, bloquea la interacción del jugador (editor, panel) durante
-   * este paso. Útil para tutoriales donde Lenny explica algo y el jugador
+   * este paso. Útil para tutoriales donde Cody explica algo y el jugador
    * no debe hacer click aún. El botón "Siguiente" de la nubecita sigue activo.
    */
   interactiveLock?: boolean
-  /** Si true, difumina todo excepto Lenny y su burbuja (efecto cinematográfico) */
+  /** Si true, difumina todo excepto Cody y su burbuja (efecto cinematográfico) */
   cinematicBlur?: boolean
 }
 
 /** Configuración del tutorial de un nivel */
 export interface TutorialConfig {
   avatarMode: AvatarMode
-  /** Para 'guided-smell': ID del smell que Lenny refactoriza por el jugador */
+  /** Para 'guided-smell': ID del smell que Cody refactoriza por el jugador */
   guidedSmellId?: string
-  /** Código que Lenny inyecta para resolver el smell guiado */
+  /** Código que Cody inyecta para resolver el smell guiado */
   guidedInjection?: string
   /** Secuencia de pasos para 'walkthrough' y 'reveal-solution' */
   steps?: AvatarStep[]
@@ -167,11 +167,13 @@ export interface GameState {
   avatarActive: boolean
   avatarMessage?: string
   avatarHighlightLine?: number
-  /** Zona de UI que Lenny señala con rectángulo */
+  /** Zona de UI que Cody señala con rectángulo */
   avatarHighlightZone?: ZoneId
-  /** Si true, difumina todo excepto Lenny (efecto cinematográfico) */
+  /** Si true, Cody está "escribiendo" código (animación de inyección) */
+  avatarInjecting?: boolean
+  /** Si true, difumina todo excepto Cody (efecto cinematográfico) */
   avatarCinematicBlur?: boolean
-  /** Zona actual de Lenny (para moverse por el juego) */
+  /** Zona actual de Cody (para moverse por el juego) */
   avatarZone: AvatarZone
   /** Si true, el jugador no puede interactuar con editor/panel (bloqueo tutorial) */
   interactiveLock: boolean

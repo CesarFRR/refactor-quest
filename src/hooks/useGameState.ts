@@ -38,6 +38,7 @@ function initialState(level: Level): GameState {
     avatarHighlightLine: firstStep?.highlightLine,
     avatarHighlightZone: firstStep?.highlightZone,
     avatarCinematicBlur: firstStep?.cinematicBlur,
+    avatarInjecting: false,
     avatarZone: firstStep?.zone ?? 'bottom-right',
     interactiveLock: firstStep?.interactiveLock ?? false,
   }
@@ -119,6 +120,7 @@ function advanceAvatar(
   avatarHighlightLine?: number
   avatarHighlightZone?: string
   avatarCinematicBlur?: boolean
+  avatarInjecting: boolean
   avatarZone: AvatarZone
   interactiveLock: boolean
 } {
@@ -126,6 +128,7 @@ function advanceAvatar(
   if (!tutorial || tutorial.avatarMode === 'off' || !tutorial.steps) {
     return {
       avatarStep: prevStep,
+      avatarInjecting: false,
       avatarZone: 'bottom-right',
       interactiveLock: false,
     }
@@ -158,6 +161,7 @@ function advanceAvatar(
       avatarHighlightLine: msg?.highlightLine,
       avatarHighlightZone: msg?.highlightZone,
       avatarCinematicBlur: msg?.cinematicBlur,
+      avatarInjecting: false,
       avatarZone: msg?.zone ?? 'bottom-right',
       interactiveLock: msg?.interactiveLock ?? false,
     }
@@ -165,6 +169,7 @@ function advanceAvatar(
 
   return {
     avatarStep: prevStep,
+    avatarInjecting: false,
     avatarZone: 'bottom-right',
     interactiveLock: false,
   }
@@ -232,6 +237,7 @@ export function useGameState(level: Level) {
         avatarHighlightLine: avatar.avatarHighlightLine,
         avatarHighlightZone: avatar.avatarHighlightZone,
         avatarCinematicBlur: avatar.avatarCinematicBlur,
+        avatarInjecting: false,
         avatarZone: avatar.avatarZone,
         interactiveLock: avatar.interactiveLock,
       }
@@ -406,8 +412,6 @@ export function useGameState(level: Level) {
   }, [level, emit])
 
   // ── Avatar: avanzar paso manualmente (walkthrough / reveal-solution) ──
-  // En modo reveal-solution, si el paso actual tiene injectCode, lo inyecta
-  // en el editor antes de avanzar al siguiente paso.
   const confirmAvatarStep = useCallback(() => {
     const tutorial = level.tutorial
     if (!tutorial || !tutorial.steps) return
@@ -415,7 +419,7 @@ export function useGameState(level: Level) {
       if (prev.levelId !== level.id) return prev
       const cur = tutorial.steps![prev.avatarStep]
 
-      // Si el paso actual tiene injectCode, inyectarlo en el editor
+      // Si el paso actual tiene injectCode, animar la inyección con retardo
       if (cur?.injectCode) {
         const code = cur.injectCode
         const { status: smellStatus, progress: smellProgress } =
@@ -423,24 +427,32 @@ export function useGameState(level: Level) {
         const energy = calcEnergy(level, smellStatus)
         const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
         const next = prev.avatarStep + 1
-        if (next >= tutorial.steps!.length) {
+        const finish = (innerPrev: typeof prev) => {
+          if (next >= tutorial.steps!.length) {
+            return {
+              ...innerPrev, code, smellStatus, smellProgress, energy, stability,
+              avatarMessage: undefined, avatarHighlightLine: undefined,
+              avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
+              avatarInjecting: false,
+              avatarZone: 'bottom-right' as const, interactiveLock: false,
+            }
+          }
+          const step = tutorial.steps![next]
           return {
-            ...prev, code, smellStatus, smellProgress, energy, stability,
-            avatarMessage: undefined, avatarHighlightLine: undefined, avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
-            avatarZone: 'bottom-right' as const, interactiveLock: false,
+            ...innerPrev, code, smellStatus, smellProgress, energy, stability,
+            avatarStep: next,
+            avatarMessage: step.message,
+            avatarHighlightLine: step.highlightLine,
+            avatarHighlightZone: step.highlightZone,
+            avatarCinematicBlur: step.cinematicBlur,
+            avatarInjecting: false,
+            avatarZone: step.zone ?? 'bottom-right',
+            interactiveLock: step.interactiveLock ?? false,
           }
         }
-        const step = tutorial.steps![next]
-        return {
-          ...prev, code, smellStatus, smellProgress, energy, stability,
-          avatarStep: next,
-          avatarMessage: step.message,
-          avatarHighlightLine: step.highlightLine,
-          avatarHighlightZone: step.highlightZone,
-          avatarCinematicBlur: step.cinematicBlur,
-          avatarZone: step.zone ?? 'bottom-right',
-          interactiveLock: step.interactiveLock ?? false,
-        }
+        // Mostrar "escribiendo..." y después de 1.2s inyectar el código
+        setTimeout(() => setState(finish), 1200)
+        return { ...prev, avatarInjecting: true }
       }
 
       // Paso sin injectCode: sólo avanzar

@@ -1,7 +1,7 @@
 /* ============================================================
-   RefactorQuest — LennyAvatar
-   Lenny: binoculares con ojos (inspirado en Toy Story).
-   Asistente flotante abajo-derecha: Lenny SVG + nubecita.
+   RefactorQuest — CodyAvatar
+   Cody: binoculares con ojos (inspirado en Toy Story).
+   Asistente flotante abajo-derecha: Cody SVG + nubecita.
    Animaciones: parpadeo, rebote sutil al hablar, mirada sigue
    cursor, temblor al detectar error, celebración con partículas,
    crecimiento responsive según pantalla.
@@ -18,20 +18,20 @@ function renderMarkdown(text: string): string {
 interface Props {
   mode: AvatarMode
   message?: string
-  /** Resalta una línea del editor (Lenny "mira" hacia allí) */
+  /** Resalta una línea del editor (Cody "mira" hacia allí) */
   highlightLine?: number
-  /** Estado de compilación — Lenny tiembla si hay error de sintaxis */
+  /** Estado de compilación — Cody tiembla si hay error de sintaxis */
   compileStatus?: CompileStatus
-  /** Zona donde Lenny se posiciona (bottom-right, panel, editor, footer) */
+  /** Zona donde Cody se posiciona (bottom-right, panel, editor, footer) */
   zone?: AvatarZone
   /** Avanzar al siguiente paso del walkthrough */
   onConfirmStep?: () => void
   /** Texto del botón del paso */
   confirmLabel?: string
-  /** Para guided-smell: botón para que Lenny inyecta su refactor */
+  /** Para guided-smell: botón para que Cody inyecta su refactor */
   onInjectGuided?: () => void
   injectLabel?: string
-  /** Lenny se enoja si hay errores y el jugador da a Ejecutar tests */
+  /** Cody se enoja si hay errores y el jugador da a Ejecutar tests */
   angryOnTest?: boolean
 }
 
@@ -44,11 +44,11 @@ function pickMood(
   mode: AvatarMode,
   angryOnTest?: boolean,
 ): Mood {
-  // Lenny se enoja si hay errores Y el jugador dio a Ejecutar tests
+  // Cody se enoja si hay errores Y el jugador dio a Ejecutar tests
   if (angryOnTest) return 'error'
   if (compileStatus === 'syntax-error') return 'error'
   // Sleeping SÓLO en modo 'off' (nivel 5). En otros modos, aunque el avatar
-  // termine sus pasos, Lenny se queda idle (despierto, parpadeando, sin burbuja).
+  // termine sus pasos, Cody se queda idle (despierto, parpadeando, sin burbuja).
   if (mode === 'off' && !message) return 'sleeping'
   if (message && /100%|completamente estabilizado|estabilizado/i.test(message)) return 'celebrating'
   if (highlightLine) return 'pointing'
@@ -77,7 +77,7 @@ function useResponsiveSize(talking: boolean): number {
   return size +50
 }
 
-export function LennyAvatar({
+export function CodyAvatar({
   mode,
   message,
   highlightLine,
@@ -145,16 +145,16 @@ export function LennyAvatar({
   // Cache de centros de los ojos (evita getBoundingClientRect en cada frame)
   const [eyeTarget, setEyeTarget] = useState({ leftX: 0, leftY: 0, rightX: 0, rightY: 0 })
   const [cursorSeen, setCursorSeen] = useState(false)
-  const lennyRef = useRef<HTMLDivElement>(null)
+  const codyRef = useRef<HTMLDivElement>(null)
   const eyeCentersRef = useRef({ leftX: 0, rightX: 0, eyeCenterY: 0 })
   const eyeRafRef = useRef(0)
   const prevEyeRef = useRef({ leftX: 0, leftY: 0 })
-  // No seguir cursor cuando Lenny está hablando (mira al usuario)
+  // No seguir cursor cuando Cody está hablando (mira al usuario)
   const skipTracking = mood === 'sleeping' || mood === 'celebrating' || !!message
 
   // Recalcular centros de ojos sólo cuando cambia el tamaño del contenedor
   useEffect(() => {
-    const el = lennyRef.current
+    const el = codyRef.current
     if (!el) return
     const updateCenters = () => {
       const rect = el.getBoundingClientRect()
@@ -199,7 +199,7 @@ export function LennyAvatar({
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [handleMouseMove])
 
-  // Cuando Lenny habla, volver los ojos a la posición neutral
+  // Cuando Cody habla, volver los ojos a la posición neutral
   useEffect(() => { if (skipTracking) setCursorSeen(false) }, [skipTracking])
 
   // Desplazamiento de pupilas: cada ojo usa su propio vector contra el cursor.
@@ -222,24 +222,24 @@ export function LennyAvatar({
 
   // Animación CSS inyectada una sola vez
   useEffect(() => {
-    const styleId = 'lenny-animations'
+    const styleId = 'cody-animations'
     if (document.getElementById(styleId)) return
     const style = document.createElement('style')
     style.id = styleId
     style.textContent = `
-      @keyframes lenny-bounce { 0%{transform:translateY(0)} 30%{transform:translateY(-6px)} 60%{transform:translateY(2px)} 100%{transform:translateY(0)} }
-      @keyframes lenny-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-2px)} 40%{transform:translateX(2px)} 60%{transform:translateX(-1px)} 80%{transform:translateX(1px)} }
-      @keyframes lenny-particle { 0%{opacity:1;transform:translate(0,0) rotate(0)} 100%{opacity:0;transform:translate(var(--px),var(--py)) rotate(var(--rot))} }
-      @keyframes lenny-bubble-in { from{opacity:0;transform:translateY(8px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+      @keyframes cody-bounce { 0%{transform:translateY(0)} 30%{transform:translateY(-6px)} 60%{transform:translateY(2px)} 100%{transform:translateY(0)} }
+      @keyframes cody-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-2px)} 40%{transform:translateX(2px)} 60%{transform:translateX(-1px)} 80%{transform:translateX(1px)} }
+      @keyframes cody-particle { 0%{opacity:1;transform:translate(0,0) rotate(0)} 100%{opacity:0;transform:translate(var(--px),var(--py)) rotate(var(--rot))} }
+      @keyframes cody-bubble-in { from{opacity:0;transform:translateY(8px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
     `
     document.head.appendChild(style)
     return () => { document.getElementById(styleId)?.remove() }
   }, [])
 
-  const lennyAnim =
-    bounce ? 'lenny-bounce 0.4s ease' :
-    angryOnTest ? 'lenny-shake 0.3s ease infinite' :
-    mood === 'error' ? 'lenny-shake 0.4s ease infinite' :
+  const codyAnim =
+    bounce ? 'cody-bounce 0.4s ease' :
+    angryOnTest ? 'cody-shake 0.3s ease infinite' :
+    mood === 'error' ? 'cody-shake 0.4s ease infinite' :
     undefined
 
   return (
@@ -269,13 +269,13 @@ export function LennyAvatar({
               ['--px' as string]: `${p.x}px`,
               ['--py' as string]: `${p.dy}px`,
               ['--rot' as string]: `${p.rot}deg`,
-              animation: 'lenny-particle 1.4s ease-out forwards',
+              animation: 'cody-particle 1.4s ease-out forwards',
             }}>{p.emoji}</span>
           ))}
         </div>
       )}
 
-      {/* Nubecita a la izquierda de Lenny */}
+      {/* Nubecita a la izquierda de Cody */}
       {showBubble && (
           <div style={{
             backgroundColor: '#1e2229',
@@ -289,9 +289,9 @@ export function LennyAvatar({
             opacity: 1,
             boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
             pointerEvents: 'auto',
-            animation: 'lenny-bubble-in 0.2s ease',
+            animation: 'cody-bubble-in 0.2s ease',
           }}>
-          {/* Pico de la nubecita apuntando a Lenny (abajo-derecha) */}
+          {/* Pico de la nubecita apuntando a Cody (abajo-derecha) */}
           <div style={{
             position: 'absolute',
             right: -8, bottom: 10,
@@ -346,16 +346,16 @@ export function LennyAvatar({
         </div>
       )}
 
-      {/* Lenny SVG siempre visible (parpadea, rebota, tiembla, celebra) */}
-      <div ref={lennyRef} style={{
+      {/* Cody SVG siempre visible (parpadea, rebota, tiembla, celebra) */}
+      <div ref={codyRef} style={{
         pointerEvents: 'auto',
-        animation: lennyAnim,
+        animation: codyAnim,
         position: 'relative',
         width: size,
         height: size,
         transition: 'width 0.3s ease, height 0.3s ease',
       }}>
-        <LennySvg
+        <CodySvg
           mood={mood}
           blink={blink}
           eyeShiftLeft={eyeShiftLeft}
@@ -389,7 +389,7 @@ function btnStyle(accent: string): React.CSSProperties {
 /* Diseño original: dos lentes circulares grises conectados por un puente,
    con ojos expresivos que se mueven. Sin patas (no es copyright de Pixar).
    Color del cuerpo: gris por defecto, el accent (ojos/anillos) cambia con mood. */
-function LennySvg({
+function CodySvg({
   mood, blink, eyeShiftLeft, pupilYLeft, eyeShiftRight, pupilYRight, accent, size,
 }: {
   mood: Mood
@@ -414,34 +414,34 @@ function LennySvg({
       style={{ filter: mood === 'sleeping' ? 'grayscale(0.6) opacity(0.5)' : 'none' }}
     >
       <defs>
-        <radialGradient id="lenny-body" cx="0.35" cy="0.3" r="0.8">
+        <radialGradient id="cody-body" cx="0.35" cy="0.3" r="0.8">
           <stop offset="0%" stopColor={bodyGrayLight} />
           <stop offset="60%" stopColor={bodyGray} />
           <stop offset="100%" stopColor={bodyGrayDark} />
         </radialGradient>
-        <radialGradient id="lenny-lens" cx="0.4" cy="0.35" r="0.7">
+        <radialGradient id="cody-lens" cx="0.4" cy="0.35" r="0.7">
           <stop offset="0%" stopColor="#1a1e24" />
           <stop offset="100%" stopColor="#0a0d1200" />
         </radialGradient>
-        <radialGradient id="lenny-shine" cx="0.3" cy="0.25" r="0.4">
+        <radialGradient id="cody-shine" cx="0.3" cy="0.25" r="0.4">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
       </defs>
 
       {/* ── Dos lentes circulares (el binocular) ── */}
-      <circle cx="20" cy="34" r="14" fill="url(#lenny-body)" stroke={ringColor} strokeWidth="2" />
-      <circle cx="50" cy="34" r="14" fill="url(#lenny-body)" stroke={ringColor} strokeWidth="2" />
+      <circle cx="20" cy="34" r="14" fill="url(#cody-body)" stroke={ringColor} strokeWidth="2" />
+      <circle cx="50" cy="34" r="14" fill="url(#cody-body)" stroke={ringColor} strokeWidth="2" />
       {/* Puente entre los dos lentes */}
       <rect x="31" y="31" width="2" height="6" rx="1" fill={bodyGrayDark} />
 
       {/* ── Vidrio de los lentes ── */}
-      <circle cx="20" cy="34" r="10" fill="url(#lenny-lens)" stroke={ringColor} strokeWidth="0.8" />
-      <circle cx="50" cy="34" r="10" fill="url(#lenny-lens)" stroke={ringColor} strokeWidth="0.8" />
+      <circle cx="20" cy="34" r="10" fill="url(#cody-lens)" stroke={ringColor} strokeWidth="0.8" />
+      <circle cx="50" cy="34" r="10" fill="url(#cody-lens)" stroke={ringColor} strokeWidth="0.8" />
 
       {/* Brillo en el vidrio */}
-      <circle cx="20" cy="34" r="10" fill="url(#lenny-shine)" />
-      <circle cx="50" cy="34" r="10" fill="url(#lenny-shine)" />
+      <circle cx="20" cy="34" r="10" fill="url(#cody-shine)" />
+      <circle cx="50" cy="34" r="10" fill="url(#cody-shine)" />
 
       {/* ── Ojos / pupilas (se mueven, cambian de color con mood) ── */}
       {eyeOpen ? (
