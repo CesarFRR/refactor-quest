@@ -143,38 +143,6 @@ export function EditorPanel({ code, smells, onChange, onMarkersChange, readOnly 
     }
   }, [monaco, smells])
 
-  // Resaltar línea señalada por el avatar (sin mover la vista forzadamente)
-  useEffect(() => {
-    if (!monaco || !editorRef.current) return
-    const ed = editorRef.current
-
-    // Limpiar decoración anterior
-    if (avatarDecoRef.current) {
-      avatarDecoRef.current.clear()
-      avatarDecoRef.current = null
-    }
-
-    if (!avatarHighlightLine) return
-
-    const deco = [{
-      range: new monaco.Range(avatarHighlightLine, 1, avatarHighlightLine, 1),
-      options: {
-        isWholeLine: true,
-        className: 'avatar-highlight-line',
-        glyphMarginClassName: 'avatar-glyph',
-        overviewRuler: { color: '#e5c07b', position: 4 /* OverviewRulerLane.Right */ },
-      },
-    }]
-    avatarDecoRef.current = ed.createDecorationsCollection(deco)
-
-    return () => {
-      if (avatarDecoRef.current) {
-        avatarDecoRef.current.clear()
-        avatarDecoRef.current = null
-      }
-    }
-  }, [monaco, avatarHighlightLine])
-
   return (
     <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       {readOnly && (
