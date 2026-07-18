@@ -428,6 +428,20 @@ export function useGameState(level: Level) {
     if (!tutorial || !tutorial.steps) return
     setState((prev) => {
       if (prev.levelId !== level.id) return prev
+
+      // hint-on-stuck: solo descartar el mensaje, mantener avatar activo
+      if (tutorial.avatarMode === 'hint-on-stuck') {
+        return {
+          ...prev,
+          avatarMessage: undefined,
+          avatarHighlightLine: undefined,
+          avatarHighlightZone: undefined,
+          avatarCinematicBlur: undefined,
+          avatarMood: undefined,
+          avatarStep: Math.max(prev.avatarStep, 1),
+        }
+      }
+
       const cur = tutorial.steps![prev.avatarStep]
 
       // Paso con injectCode: activar animación de tipeo en el editor

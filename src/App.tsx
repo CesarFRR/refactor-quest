@@ -257,6 +257,7 @@ export default function App() {
   const confirmLabel = !state.avatarActive ? undefined :
     avatarMode === 'reveal-solution' ? (isLastStep ? '✓ Terminar' : 'Siguiente paso ▶') :
     avatarMode === 'walkthrough' ? (isLastStep ? '✓ Entendido' : 'Siguiente ▶') :
+    avatarMode === 'hint-on-stuck' && state.avatarMessage ? 'OK' :
     undefined
 
   const injectLabel =
