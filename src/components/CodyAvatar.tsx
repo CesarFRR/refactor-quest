@@ -513,13 +513,8 @@ function Eyebrows({ mood, color }: { mood: Mood; color: string }) {
     )
   }
   if (mood === 'error') {
-    // ) )  — ambas hacia abajo/centro (enojo)
-    return (
-      <g stroke={stroke} strokeWidth={sw} fill="none" strokeLinecap="round">
-        <path d="M15 24 Q20 28 25 24" />
-        <path d="M45 24 Q50 28 55 24" />
-      </g>
-    )
+    // Alerta: sin cejas especiales, solo rojo y temblor
+    return null
   }
   if (mood === 'tired') {
     // \ \  — ligeramente hacia abajo (cansancio)
