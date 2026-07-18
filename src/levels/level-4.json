@@ -12,6 +12,12 @@
     "hintAfterFails": 2,
     "steps": [
       {
+        "trigger": "level-start",
+        "message": "Este nivel tiene **dos smells**: Magic Numbers (0.04, 1.5, 40) y Long Method (procesarPlanilla lo hace todo en un bucle). Puedes resolverlos en cualquier orden. Mi consejo: empieza por las constantes, luego extrae calcularSalario() del bucle.",
+        "highlightLine": 4,
+        "zone": "editor"
+      },
+      {
         "trigger": "idle-ms",
         "message": "Dos smells a la vez. Mi truco: empieza por las constantes (SALUD_RATE, PENSION_RATE, HORAS_NORMALES, EXTRA_RATE). Luego extrae calcularSalario(emp) fuera del bucle. Cuando tienes funciones pequeñas, los números mágicos quedan a la vista.",
         "highlightLine": 4
