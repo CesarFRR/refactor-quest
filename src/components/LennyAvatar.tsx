@@ -9,6 +9,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import type { AvatarMode, AvatarZone, CompileStatus } from '../types'
 
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>')
+}
+
 interface Props {
   mode: AvatarMode
   message?: string
@@ -288,7 +294,7 @@ export function LennyAvatar({
           <div style={{ fontSize: 14, color: '#f2f4f8', lineHeight: 1.5, opacity: 1, fontWeight: 500 }}>
             {mode === 'off' && !message
               ? <span style={{ color: '#4b5263', fontStyle: 'italic' }}>…</span>
-              : message}
+              : <span dangerouslySetInnerHTML={{ __html: renderMarkdown(message ?? '') }} />}
           </div>
 
           {/* Botones dentro de la nubecita */}

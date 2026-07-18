@@ -301,6 +301,7 @@ export default function App() {
             code={state.code}
             smells={currentLevel.smells}
             onChange={handleCodeChange}
+            avatarHighlightLine={state.avatarHighlightLine}
             onMarkersChange={handleMarkersChange}
             readOnly={state.interactiveLock}
           />
@@ -332,6 +333,18 @@ export default function App() {
           Ctrl+Shift+S — cargar solución
         </span>
       </footer>
+
+      {/* ── Cinematic blur: difumina TODO excepto Lenny ── */}
+      {state.avatarCinematicBlur && (
+        <div style={{
+          position: 'fixed', inset: 0,
+          zIndex: 100,
+          background: 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          pointerEvents: 'none',
+        }} />
+      )}
 
       {/* ── Overlay sutil cuando Lenny señala algo ── */}
       {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && (

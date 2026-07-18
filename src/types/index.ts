@@ -88,6 +88,8 @@ export interface AvatarStep {
    * no debe hacer click aún. El botón "Siguiente" de la nubecita sigue activo.
    */
   interactiveLock?: boolean
+  /** Si true, difumina todo excepto Lenny y su burbuja (efecto cinematográfico) */
+  cinematicBlur?: boolean
 }
 
 /** Configuración del tutorial de un nivel */
@@ -167,6 +169,8 @@ export interface GameState {
   avatarHighlightLine?: number
   /** Zona de UI que Lenny señala con rectángulo */
   avatarHighlightZone?: ZoneId
+  /** Si true, difumina todo excepto Lenny (efecto cinematográfico) */
+  avatarCinematicBlur?: boolean
   /** Zona actual de Lenny (para moverse por el juego) */
   avatarZone: AvatarZone
   /** Si true, el jugador no puede interactuar con editor/panel (bloqueo tutorial) */

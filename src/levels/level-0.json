@@ -13,7 +13,8 @@
         "trigger": "level-start",
         "message": "¡Bienvenido a RefactorQuest! Soy Lenny, tu asistente. Empecemos conociendo el tablero. Esto de arriba es la sección **Misión**: aquí verás el contexto del nivel, por qué el sistema está fallando y qué necesitas arreglar.",
         "highlightZone": "mission",
-        "zone": "panel"
+        "zone": "panel",
+        "cinematicBlur": true
       },
       {
         "trigger": "step-confirmed",

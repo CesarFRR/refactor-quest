@@ -46,15 +46,17 @@ interface Props {
   code: string
   smells: CodeSmell[]
   onChange: (value: string) => void
+  avatarHighlightLine?: number
   onMarkersChange?: (markers: SyntaxMarker[]) => void
   /** Si true, el editor es readOnly (bloqueo tutorial de Lenny) */
   readOnly?: boolean
 }
 
-export function EditorPanel({ code, smells, onChange, onMarkersChange, readOnly }: Props) {
+export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly }: Props) {
   const monaco = useMonaco()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const smellDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
+  const avatarDecoRef = useRef<editor.IEditorDecorationsCollection | null>(null)
 
   // Registrar tema One Dark Pro cuando Monaco esté listo
   useEffect(() => {
@@ -146,6 +148,37 @@ export function EditorPanel({ code, smells, onChange, onMarkersChange, readOnly 
       }
     }
   }, [monaco, smells])
+
+  // Resaltar línea señalada por el avatar (para guiar la mirada del jugador)
+  useEffect(() => {
+    if (!monaco || !editorRef.current) return
+    const ed = editorRef.current
+
+    if (avatarDecoRef.current) {
+      avatarDecoRef.current.clear()
+      avatarDecoRef.current = null
+    }
+
+    if (!avatarHighlightLine) return
+
+    const deco = [{
+      range: new monaco.Range(avatarHighlightLine, 1, avatarHighlightLine, 1),
+      options: {
+        isWholeLine: true,
+        className: 'avatar-highlight-line',
+        glyphMarginClassName: 'avatar-glyph',
+        overviewRuler: { color: '#61afef', position: 4 },
+      },
+    }]
+    avatarDecoRef.current = ed.createDecorationsCollection(deco)
+
+    return () => {
+      if (avatarDecoRef.current) {
+        avatarDecoRef.current.clear()
+        avatarDecoRef.current = null
+      }
+    }
+  }, [monaco, avatarHighlightLine])
 
   return (
     <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
