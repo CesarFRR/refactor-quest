@@ -320,7 +320,7 @@ export function CodyAvatar({
     mood === 'error' ? 'cody-shake 0.4s ease infinite' :
     mood === 'thinking' ? 'cody-bounce 0.6s ease infinite' :
     mood === 'happy' ? 'cody-pulse 1.2s ease infinite' :
-    mood === 'confused' ? 'cody-wiggle 0.5s ease infinite' :
+    mood === 'confused' ? 'cody-wiggle 0.5s ease' :
     mood === 'amazed' ? 'cody-bounce 0.8s ease' :
     undefined
 
