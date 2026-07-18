@@ -164,8 +164,10 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
       range: new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1),
       options: {
         isWholeLine: true,
-        className: 'smell-line',
-        glyphMarginClassName: 'smell-glyph',
+        className:
+          smell.severity === 'critical' ? 'smell-crit-line' : 'smell-warn-line',
+        glyphMarginClassName:
+          smell.severity === 'critical' ? 'smell-crit-glyph' : 'smell-warn-glyph',
         glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
       },
     }))
