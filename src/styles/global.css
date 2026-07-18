@@ -38,16 +38,23 @@ html, body, #root {
 }
 
 /* ── Decoraciones del editor (smells y avatar) — todo amarillo ── */
-.smell-crit-line,
-.smell-warn-line {
-  background: rgba(229,192,123,0.18) !important;
-  border-left: 4px solid #e5c07b !important;
+.smell-crit-line {
+  background: rgba(229,192,123,0.35);
+  border-left: 4px solid #e5c07b;
 }
-.smell-crit-glyph,
+.smell-warn-line {
+  background: rgba(229,192,123,0.18);
+  border-left: 3px solid #e5c07b;
+}
+.smell-crit-glyph {
+  background: #e5c07b;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 .smell-warn-glyph {
-  background: #e5c07b !important;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat !important;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat !important;
+  background: #e5c07b;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4' fill='%23e5c07b'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 .avatar-highlight-line {
   background: rgba(97,175,239,0.12);
