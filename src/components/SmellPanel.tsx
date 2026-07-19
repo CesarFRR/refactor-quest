@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { GameState, Level, ZoneId, CodeSmell, SmellStatus } from '../types'
+import type { GameState, Level, ZoneId } from '../types'
 
 interface Props {
   level: Level
@@ -28,7 +28,7 @@ function calcInitialWidth(): number {
   return Math.min(Math.max(360, Math.round(window.innerWidth * 0.28)), 500)
 }
 
-export function SmellPanel({ level, state, onRunTests, running, locked }: Props) {
+export function SmellPanel({ level, state, onRunTests, running, locked, onDeliver, canDeliver }: Props) {
   const [panelWidth, setPanelWidth] = useState(calcInitialWidth)
   const dragging = useRef(false)
   const startX = useRef(0)
@@ -154,13 +154,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
           <StabilityBar value={state.stability} />
         </Section>
 
-        {/* Barra de deuda técnica: refleja qué % de energiaCost de smells aún no está fixed */}
-        <Section label="Deuda técnica">
-          <DebtBar
-            smells={level.smells}
-            status={state.smellStatus}
-          />
-        </Section>
+
 
         <Section label="Energía disponible" zoneId="energy">
           <span style={{
@@ -352,30 +346,4 @@ function StabilityBar({ value }: { value: number }) {
   )
 }
 
-/** Deuda técnica ponderada por energyCost — qué % del peso total falta arreglar */
-function DebtBar({ smells, status }: { smells: CodeSmell[]; status: Record<string, SmellStatus> }) {
-  let totalWeight = 0
-  let remainingWeight = 0
-  for (const s of smells) {
-    totalWeight += s.energyCost
-    if (status[s.id] !== 'fixed') remainingWeight += s.energyCost
-  }
-  const pct = totalWeight > 0 ? Math.round((remainingWeight / totalWeight) * 100) : 0
-  const color = pct === 0 ? '#98c379' : pct <= 50 ? '#e5c07b' : '#e06c75'
-  return (
-    <div>
-      <div style={{ height: 6, background: '#2c313a', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{
-          width: `${pct}%`, height: '100%',
-          background: color, borderRadius: 3, transition: 'width 400ms ease',
-        }} />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-        <span style={{ fontSize: 13, color, fontWeight: 600 }}>{pct}%</span>
-        <span style={{ fontSize: 12, color: '#636d83' }}>
-          {pct === 0 ? 'sin deuda' : pct <= 50 ? 'deuda baja' : 'deuda alta'}
-        </span>
-      </div>
-    </div>
-  )
-}
+

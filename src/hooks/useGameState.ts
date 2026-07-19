@@ -65,7 +65,7 @@ function calcSmellScore(smellProgress: Record<string, number>, smells: CodeSmell
     totalWeight += w
     weightedSum += (smellProgress[s.id] ?? 0) * w
   }
-  return totalWeight > 0 ? weightedSum / totalWeight : 0
+  return totalWeight > 0 ? weightedSum / totalWeight : 1
 }
 
 /**
