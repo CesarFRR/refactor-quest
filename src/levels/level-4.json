@@ -64,7 +64,7 @@
     }
   ],
   "validators": {
-    "magic-numbers": "const L=code.split('\\n');const R=[];for(let i=0;i<L.length;i++){const t=L[i].trim();if(!t.startsWith('//')&&!/^const\\s+[A-Z_]+\\s*=/.test(t)&&/\\b(?:0\\.04|1\\.5|40)\\b/.test(t)){R.push({start:i+1,end:i+1})}}const h=R.length>0;const hasConst=/const\\s+[A-Z][A-Z_]*\\s*=\\s*\\d/.test(code);return{score:!h&&hasConst?1:hasConst?0.5:0,ranges:R};",
+    "magic-numbers": "const L=code.split('\\n');const R=[];let r=0;let d=0;for(let i=0;i<L.length;i++){const t=L[i].trim();if(/^const\\s+[A-Z][A-Z_]*\\s*=\\s*\\d/.test(t))d++;if(!t.startsWith('//')&&!/^const\\s+[A-Z_]+\\s*=/.test(t)&&/\\b(?:0\\.04|1\\.5|40)\\b/.test(t)){R.push({start:i+1,end:i+1});r++;}}const cs=Math.min(d/4,1);const ls=1-r/5;return{score:0.5*cs+0.5*Math.max(0,Math.min(ls,1)),ranges:R};",
     "long-method": "const L=code.split('\\n');const R=[];for(let i=0;i<L.length;i++){if(/function\\s+/.test(L[i])){let s=i+1;let d=0;for(let j=i;j<L.length;j++){for(const c of L[j]){if(c==='{')d++;if(c==='}')d--;}if(d===0&&j>i){R.push({start:s,end:j+1});break;}}}}return{score:Math.min(R.length/2,1),ranges:R};"
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { GameState, Level, ZoneId } from '../types'
+import type { GameState, Level, ZoneId, CodeSmell, SmellStatus } from '../types'
 
 interface Props {
   level: Level
@@ -8,6 +8,10 @@ interface Props {
   running: boolean
   /** Si true, bloquea la interacción (tutorial de Cody) */
   locked?: boolean
+  /** Handler para "Entregar nivel" (tests pasan pero hay deuda) */
+  onDeliver?: () => void
+  /** Si true, el nivel se puede entregar (tests pasan) */
+  canDeliver?: boolean
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -66,10 +70,9 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
   // 'won' debe coincidir EXACTAMENTE con 'isComplete' de useGameState.applyTestResults
   const won = allPassed && allSmellsFixed && state.stability >= 75 && state.code !== level.initialCode
   const codeChanged = state.code !== level.initialCode
-  // canRun: el jugador SIEMPRE puede ejecutar tests si editó el código.
-  // Incluso si ya ganó: re-ejecutar dispara applyTestResults que abre el modal.
-  // Si locked (tutorial de Cody), no puede ejecutar.
-  const canRun = codeChanged && !running && !locked
+  // Tests bloqueados si: codigo sin cambios, syntax error, ya corriendo, locked, o smellScore < 0.5
+  const testsLocked = (state.smellScore ?? 0) < 0.5
+  const canRun = codeChanged && !running && !locked && !testsLocked
 
   return (
     <aside className="rq-panel" style={{
@@ -151,6 +154,14 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
           <StabilityBar value={state.stability} />
         </Section>
 
+        {/* Barra de deuda técnica: refleja qué % de energiaCost de smells aún no está fixed */}
+        <Section label="Deuda técnica">
+          <DebtBar
+            smells={level.smells}
+            status={state.smellStatus}
+          />
+        </Section>
+
         <Section label="Energía disponible" zoneId="energy">
           <span style={{
             fontSize: 15, fontWeight: 600,
@@ -214,10 +225,16 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
             Edita el código antes de ejecutar tests
           </p>
         )}
+        {testsLocked && codeChanged && (
+          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#e5c07b', textAlign: 'center' }}>
+            Refactoriza al 50% para desbloquear tests ({Math.round((state.smellScore ?? 0) * 100)}%)
+          </p>
+        )}
         <button
           data-zone="run-tests"
           onClick={onRunTests}
           disabled={!canRun}
+          title={testsLocked ? 'Completa al menos la mitad del refactor para desbloquear' : 'Ejecutar pruebas'}
           style={{
             width: '100%',
             padding: '9px 0',
@@ -261,6 +278,27 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
           <p style={{ marginTop: 8, marginBottom: 0, fontSize: 12, color: '#e5c07b' }}>
             Intenta otra estrategia.
           </p>
+        )}
+
+        {/* Botón "Entregar nivel" — visible cuando tests pasan aunque haya deuda */}
+        {canDeliver && onDeliver && (
+          <button
+            onClick={onDeliver}
+            style={{
+              width: '100%', marginTop: 8,
+              padding: '9px 0',
+              background: 'rgba(229,192,123,0.12)',
+              color: '#e5c07b',
+              border: '1px solid rgba(229,192,123,0.25)',
+              borderRadius: 4,
+              fontFamily: "'JetBrains Mono', monospace",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: 'pointer',
+            }}
+          >
+            Entregar nivel
+          </button>
         )}
       </div>
 
@@ -308,6 +346,34 @@ function StabilityBar({ value }: { value: number }) {
         <span style={{ fontSize: 13, color, fontWeight: 600 }}>{value}%</span>
         <span style={{ fontSize: 12, color: '#636d83' }}>
           {value >= 70 ? 'estable' : value >= 40 ? 'degradado' : 'crítico'}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/** Deuda técnica ponderada por energyCost — qué % del peso total falta arreglar */
+function DebtBar({ smells, status }: { smells: CodeSmell[]; status: Record<string, SmellStatus> }) {
+  let totalWeight = 0
+  let remainingWeight = 0
+  for (const s of smells) {
+    totalWeight += s.energyCost
+    if (status[s.id] !== 'fixed') remainingWeight += s.energyCost
+  }
+  const pct = totalWeight > 0 ? Math.round((remainingWeight / totalWeight) * 100) : 0
+  const color = pct === 0 ? '#98c379' : pct <= 50 ? '#e5c07b' : '#e06c75'
+  return (
+    <div>
+      <div style={{ height: 6, background: '#2c313a', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{
+          width: `${pct}%`, height: '100%',
+          background: color, borderRadius: 3, transition: 'width 400ms ease',
+        }} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+        <span style={{ fontSize: 13, color, fontWeight: 600 }}>{pct}%</span>
+        <span style={{ fontSize: 12, color: '#636d83' }}>
+          {pct === 0 ? 'sin deuda' : pct <= 50 ? 'deuda baja' : 'deuda alta'}
         </span>
       </div>
     </div>

@@ -4,6 +4,7 @@ import type { Level } from '../types'
 interface Props {
   levels: Level[]
   unlockedLevels: Set<number>
+  stars: Record<number, number>
   onSelectLevel: (index: number) => void
   onBack: () => void
 }
@@ -12,7 +13,7 @@ const GRID_COLS = 4
 const GRID_ROWS = 3
 const TOTAL_SLOTS = GRID_COLS * GRID_ROWS
 
-export function LevelSelect({ levels, unlockedLevels, onSelectLevel, onBack }: Props) {
+export function LevelSelect({ levels, unlockedLevels, stars, onSelectLevel, onBack }: Props) {
   const [page, setPage] = useState(0)
   const totalPages = Math.max(1, Math.ceil(levels.length / TOTAL_SLOTS))
   const offset = page * TOTAL_SLOTS
@@ -98,6 +99,18 @@ export function LevelSelect({ levels, unlockedLevels, onSelectLevel, onBack }: P
                 }}>
                   {level.title}
                 </div>
+                {stars[level.id] != null && (
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    {[1,2,3].map(i => (
+                      <span key={i} style={{
+                        fontSize: 10,
+                        color: i <= (stars[level.id] ?? 0) ? '#e5c07b' : '#3e4451',
+                      }}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                )}
               </button>
             )
           })}

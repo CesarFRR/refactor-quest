@@ -50,6 +50,6 @@
     }
   ],
   "validators": {
-    "magic-numbers": "const L=code.split('\\n');const R=[];for(let i=0;i<L.length;i++){const t=L[i].trim();if(!t.startsWith('//')&&!/^const\\s+[A-Z_]+\\s*=/.test(t)&&/\\b0\\.04\\b/.test(t)){R.push({start:i+1,end:i+1})}}const h=R.length>0;const hasConst=/const\\s+[A-Z][A-Z_]*\\s*=\\s*0\\.04/.test(code);return{score:!h&&hasConst?1:hasConst?0.5:0,ranges:R};"
+    "magic-numbers": "const L=code.split('\\n');const R=[];let r=0;let d=0;for(let i=0;i<L.length;i++){const t=L[i].trim();if(/^const\\s+[A-Z][A-Z_]*\\s*=\\s*\\d/.test(t))d++;if(!t.startsWith('//')&&!/^const\\s+[A-Z_]+\\s*=/.test(t)&&/\\b0\\.04\\b/.test(t)){R.push({start:i+1,end:i+1});r++;}}const cs=Math.min(d/2,1);const ls=1-r/2;return{score:0.5*cs+0.5*Math.max(0,Math.min(ls,1)),ranges:R};"
   }
 }

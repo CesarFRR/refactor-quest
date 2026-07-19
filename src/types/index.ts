@@ -171,7 +171,9 @@ export interface GameState {
   smellStatus: Record<string, SmellStatus>
   energy: number
   attempts: number
-  stability: number    // 0–100
+  stability: number    // 0–100 (70% weighted smells + 30% tests)
+  /** Weighted average de progreso de smells (0-1), sin tests. Usado para desbloquear botón tests */
+  smellScore: number   // 0–1
   testResults: TestResult[]
   phase: 'diagnosis' | 'refactor' | 'feedback'
   compileStatus: CompileStatus
