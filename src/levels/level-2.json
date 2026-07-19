@@ -1,7 +1,7 @@
 {
   "id": 2,
-  "title": "Pedido de pizza monstruoso",
-  "narrative": "calcPizzaTotal lo hace TODO en una función: calcula precio base, suma ingredientes, aplica descuentos, impuestos y delivery. 20 líneas mezcladas. Divídela en funciones pequeñas: cada una con UNA sola responsabilidad. Codi te guía paso a paso.",
+  "title": "La función que hace de todo",
+  "narrative": "processOrder calcula el total Y además formatea el resumen Y lo imprime en consola. Tres responsabilidades en una sola función. Divídela: que cada función haga UNA cosa. Codi te guía paso a paso.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "billing",
@@ -11,59 +11,54 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "**Long Method**. Ufff, 20 líneas en UNA función. calcPizzaTotal mezcla precio base, ingredientes, descuentos, impuestos y delivery. Si quieres cambiar algo, tienes que leer toda la función. Vamos a dividirla: cada función hace UNA cosa y la orquesta solo coordina.",
+        "message": "**Long Method**. Esta función no solo calcula el total — también arma el resumen y lo imprime en consola. TRES cosas en una. El día que quieras cambiar el formato del resumen, tendrás que leer toda la lógica de precios. Vamos a separar: cada función hace UNA cosa y solo una.",
         "highlightLine": 3,
         "zone": "panel",
         "mood": "tired"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Paso 1: extrae el cálculo del precio base (tamaño + ingredientes) en calcBasePrice(size, toppings). Debe devolver el precio antes de descuentos. Cuando lo hagas, pulsa Siguiente.",
+        "message": "Paso 1: extrae el cálculo del total en calcTotal(order). Debe recibir el pedido y devolver el total. Todo lo que es sumar ingredientes, aplicar descuentos y calcular impuestos va ahí. Cuando lo hagas, pulsa Siguiente.",
         "highlightLine": 4,
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Paso 2: extrae los descuentos en applyDiscounts(price, coupon). Debe devolver el precio con descuento aplicado. Cuando tengas 3 funciones en total, el smell se marcará como corregido.",
-        "highlightLine": 11,
+        "message": "Paso 2: extrae el formato del resumen en formatSummary(order, total). Debe recibir el pedido y el total, y devolver el string del resumen. Cuando tengas 3 funciones en total, el smell se marcará como corregido.",
+        "highlightLine": 18,
         "zone": "editor",
         "waitForSmell": "long-method"
       }
     ]
   },
-  "initialCode": "function calcPizzaTotal(order) {\n  let price = 0;\n  if (order.size === 'small') price = 10;\n  else if (order.size === 'medium') price = 14;\n  else price = 18;\n  for (const t of order.toppings) {\n    if (t === 'pepperoni') price += 2;\n    else if (t === 'mushrooms') price += 1.5;\n    else if (t === 'olives') price += 1;\n    else if (t === 'extra cheese') price += 1.5;\n  }\n  if (order.coupon === 'WELCOME10') price *= 0.9;\n  if (price > 30) price *= 0.95;\n  const tax = price * 0.08;\n  const delivery = order.delivery ? 3 : 0;\n  return Math.round((price + tax + delivery) * 100) / 100;\n}\n",
-  "solution": "function calcBasePrice(size, toppings) {\n  let price = 0;\n  if (size === 'small') price = 10;\n  else if (size === 'medium') price = 14;\n  else price = 18;\n  for (const t of toppings) {\n    if (t === 'pepperoni') price += 2;\n    else if (t === 'mushrooms') price += 1.5;\n    else if (t === 'olives') price += 1;\n    else if (t === 'extra cheese') price += 1.5;\n  }\n  return price;\n}\n\nfunction applyDiscounts(price, coupon) {\n  if (coupon === 'WELCOME10') price *= 0.9;\n  if (price > 30) price *= 0.95;\n  return price;\n}\n\nfunction calcPizzaTotal(order) {\n  const base = calcBasePrice(order.size, order.toppings);\n  const afterDiscount = applyDiscounts(base, order.coupon);\n  const tax = afterDiscount * 0.08;\n  const delivery = order.delivery ? 3 : 0;\n  return Math.round((afterDiscount + tax + delivery) * 100) / 100;\n}\n",
+  "initialCode": "function processOrder(order) {\n  let price = 10;\n  if (order.size === 'medium') {\n    price = 14;\n  }\n  if (order.size === 'large') {\n    price = 18;\n  }\n  let toppingsCost = 0;\n  for (const t of order.toppings) {\n    if (t === 'pepperoni') {\n      toppingsCost = toppingsCost + 2;\n    }\n    if (t === 'mushrooms') {\n      toppingsCost = toppingsCost + 1.5;\n    }\n  }\n  price = price + toppingsCost;\n  if (order.coupon === 'WELCOME10') {\n    price = price * 0.9;\n  }\n  const total = price + price * 0.08;\n  let summary = 'Pedido: ' + order.size + ' pizza';\n  if (order.toppings.length > 0) {\n    summary = summary + ' con ' + order.toppings.join(', ');\n  }\n  summary = summary + ' | Total: $' + total.toFixed(2);\n  console.log(summary);\n  return total;\n}\n",
+  "solution": "function calcTotal(order) {\n  let price = 10;\n  if (order.size === 'medium') {\n    price = 14;\n  }\n  if (order.size === 'large') {\n    price = 18;\n  }\n  let toppingsCost = 0;\n  for (const t of order.toppings) {\n    if (t === 'pepperoni') {\n      toppingsCost = toppingsCost + 2;\n    }\n    if (t === 'mushrooms') {\n      toppingsCost = toppingsCost + 1.5;\n    }\n  }\n  price = price + toppingsCost;\n  if (order.coupon === 'WELCOME10') {\n    price = price * 0.9;\n  }\n  return price + price * 0.08;\n}\n\nfunction formatSummary(order, total) {\n  let summary = 'Pedido: ' + order.size + ' pizza';\n  if (order.toppings.length > 0) {\n    summary = summary + ' con ' + order.toppings.join(', ');\n  }\n  summary = summary + ' | Total: $' + total.toFixed(2);\n  return summary;\n}\n\nfunction processOrder(order) {\n  const total = calcTotal(order);\n  const summary = formatSummary(order, total);\n  console.log(summary);\n  return total;\n}\n",
   "smells": [
     {
       "id": "long-method",
       "name": "Long Method",
       "severity": "critical",
-      "description": "calcPizzaTotal mezcla tamaño, ingredientes, descuentos, impuestos y delivery. Divídela: calcBasePrice, applyDiscounts, y que la principal solo orqueste.",
+      "description": "processOrder calcula, formatea e imprime. Extráele calcTotal y formatSummary para que solo orqueste.",
       "lineStart": 3,
-      "lineEnd": 17,
+      "lineEnd": 22,
       "energyCost": 4
     }
   ],
   "tests": [
     {
       "id": "test-pizza-basica",
-      "description": "Pizza small sin ingredientes ni descuento: $10 + 8% tax = $10.80",
-      "fn": "const r = calcPizzaTotal({ size: 'small', toppings: [], coupon: '', delivery: false });\nif (Math.abs(r - 10.80) > 0.01)\n  throw new Error('Esperado 10.80, recibido ' + r);"
+      "description": "Small sin ingredientes: $10 + 8% tax = $10.80",
+      "fn": "const r = processOrder({ size: 'small', toppings: [], coupon: '' });\nif (Math.abs(r - 10.80) > 0.01)\n  throw new Error('Esperado 10.80, recibido ' + r);"
     },
     {
-      "id": "test-pizza-con-ingredientes",
-      "description": "Pizza medium + pepperoni + mushrooms: $14+$2+$1.5 = $17.50 + 8% tax = $18.90",
-      "fn": "const r = calcPizzaTotal({ size: 'medium', toppings: ['pepperoni', 'mushrooms'], coupon: '', delivery: false });\nif (Math.abs(r - 18.90) > 0.01)\n  throw new Error('Esperado 18.90, recibido ' + r);"
+      "id": "test-pizza-ingredientes",
+      "description": "Medium + pepperoni + mushrooms: $14+$2+$1.5 = $17.50 + 8% tax = $18.90",
+      "fn": "const r = processOrder({ size: 'medium', toppings: ['pepperoni', 'mushrooms'], coupon: '' });\nif (Math.abs(r - 18.90) > 0.01)\n  throw new Error('Esperado 18.90, recibido ' + r);"
     },
     {
-      "id": "test-pizza-con-descuento",
-      "description": "Pizza large + WELCOME10: $18 * 0.9 = $16.20 + 8% tax = $17.50",
-      "fn": "const r = calcPizzaTotal({ size: 'large', toppings: [], coupon: 'WELCOME10', delivery: false });\nif (Math.abs(r - 17.50) > 0.01)\n  throw new Error('Esperado 17.50, recibido ' + r);"
-    },
-    {
-      "id": "test-pizza-con-delivery",
-      "description": "Small + delivery: $10 + 8% tax + $3 delivery = $13.80",
-      "fn": "const r = calcPizzaTotal({ size: 'small', toppings: [], coupon: '', delivery: true });\nif (Math.abs(r - 13.80) > 0.01)\n  throw new Error('Esperado 13.80, recibido ' + r);"
+      "id": "test-pizza-descuento",
+      "description": "Large + WELCOME10: $18 * 0.9 = $16.20 + 8% tax = $17.50",
+      "fn": "const r = processOrder({ size: 'large', toppings: [], coupon: 'WELCOME10' });\nif (Math.abs(r - 17.50) > 0.01)\n  throw new Error('Esperado 17.50, recibido ' + r);"
     }
   ],
   "validators": {
