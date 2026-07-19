@@ -8,6 +8,12 @@ export type Severity = 'critical' | 'warning' | 'info'
 /** Estado de un smell dentro del nivel */
 export type SmellStatus = 'pending' | 'partial' | 'fixed' | 'skipped'
 
+/** Rango dinámico de líneas que ocupa un smell en el código actual */
+export interface SmellRange {
+  start: number
+  end: number
+}
+
 /** Descripción de un code smell detectado */
 export interface CodeSmell {
   id: string
@@ -74,6 +80,8 @@ export interface AvatarStep {
   trigger: AvatarTrigger
   message: string
   highlightLine?: number
+  /** Rango de líneas que Cody señala en el editor (reemplaza highlightLine) */
+  highlightRange?: SmellRange
   /** ID de zona de UI a resaltar (misión, smells, botón tests, etc.) */
   highlightZone?: ZoneId
   /** ID del smell que debe quedar 'fixed' para avanzar (cuando trigger es 'smell-fixed') */
@@ -125,8 +133,8 @@ export interface Level {
   energyBudget: number  // Energía disponible en el nivel
   maxAttempts: number   // Intentos antes de mostrar sugerencia
   solution: string      // Código refactorizado (para debug/testing)
-  /** Validators que devuelven un número 0-1 (fracción de progreso del smell) */
-  smellValidators: Record<string, (code: string) => number>
+  /** Validators que devuelven número 0-1, o { score, ranges } con rangos dinámicos */
+  smellValidators: Record<string, (code: string) => number | { score: number; ranges: SmellRange[] }>
   domain?: Domain
   tutorial?: TutorialConfig
 }
@@ -172,6 +180,8 @@ export interface GameState {
   avatarActive: boolean
   avatarMessage?: string
   avatarHighlightLine?: number
+  /** Rango de líneas que Cody señala en el editor */
+  avatarHighlightRange?: SmellRange
   /** Zona de UI que Cody señala con rectángulo */
   avatarHighlightZone?: ZoneId
   /** Si true, Cody está "escribiendo" código (animación de inyección) */
@@ -186,6 +196,8 @@ export interface GameState {
   interactiveLock: boolean
   /** Progreso fraccional de cada smell (0-1) para estabilidad precisa */
   smellProgress: Record<string, number>
+  /** Rangos dinámicos de cada smell en el código actual (actualizados por validator) */
+  smellRanges: Record<string, SmellRange[]>
   /** Emoción explícita de Codi (si el paso la define) */
   avatarMood?: Mood
 }

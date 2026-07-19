@@ -11,7 +11,7 @@
 import Editor, { useMonaco, loader } from '@monaco-editor/react'
 import * as monacoPkg from 'monaco-editor'
 import type { editor } from 'monaco-editor'
-import type { CodeSmell, SyntaxMarker } from '../types'
+import type { CodeSmell, SyntaxMarker, SmellRange } from '../types'
 import { useEffect, useRef, useState } from 'react'
 
 // Usar la copia local de Monaco en lugar de cargar desde CDN
@@ -47,6 +47,8 @@ interface Props {
   smells: CodeSmell[]
   onChange: (value: string) => void
   avatarHighlightLine?: number
+  /** Rango de líneas que Cody señala (reemplaza avatarHighlightLine) */
+  avatarHighlightRange?: SmellRange
   onMarkersChange?: (markers: SyntaxMarker[]) => void
   /** Si true, el editor es readOnly (bloqueo tutorial de Cody) */
   readOnly?: boolean
@@ -56,9 +58,11 @@ interface Props {
   injectTarget?: string
   /** Se llama cuando la animación de tipeo termina */
   onInjectionComplete?: () => void
+  /** Rangos dinámicos de smells (para decoraciones precisas) */
+  smellRanges?: Record<string, SmellRange[]>
 }
 
-export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete }: Props) {
+export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avatarHighlightRange, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete, smellRanges }: Props) {
   const monaco = useMonaco()
   const [editor, setEditor] = useState<editor.IStandaloneCodeEditor | null>(null)
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
@@ -151,20 +155,27 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
     return () => sub.dispose()
   }, [monaco, editor, onMarkersChange])
 
-  // Decoraciones: subrayados ondulados sobre los smells.
+  // Decoraciones: amarillo sobre los rangos de smells (dinámicos si el validator los da).
   useEffect(() => {
     if (!monaco || !editor) return
-    const decorations = smells.map((smell) => ({
-      range: new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1),
-      options: {
-        isWholeLine: true,
-        className:
-          smell.severity === 'critical' ? 'smell-crit-line' : 'smell-warn-line',
-        glyphMarginClassName:
-          smell.severity === 'critical' ? 'smell-crit-glyph' : 'smell-warn-glyph',
-        glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
-      },
-    }))
+    const decorations = smells.map((smell) => {
+      const ranges = smellRanges?.[smell.id]
+      const r0 = ranges?.[0]
+      const range = r0
+        ? new monaco.Range(r0.start, 1, r0.end, 1)
+        : new monaco.Range(smell.lineStart, 1, smell.lineEnd, 1)
+      return {
+        range,
+        options: {
+          isWholeLine: true,
+          className:
+            smell.severity === 'critical' ? 'smell-crit-line' : 'smell-warn-line',
+          glyphMarginClassName:
+            smell.severity === 'critical' ? 'smell-crit-glyph' : 'smell-warn-glyph',
+          glyphMarginHoverMessage: { value: `**${smell.name}** — ${smell.description}` },
+        },
+      }
+    })
     smellDecoIds.current = editor.deltaDecorations(smellDecoIds.current, decorations)
     return () => {
       if (smellDecoIds.current.length > 0) {
@@ -172,12 +183,13 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         smellDecoIds.current = []
       }
     }
-  }, [monaco, smells, editor])
+  }, [monaco, smells, smellRanges, editor])
 
-  // Resaltar línea señalada por el avatar
+  // Resaltar línea(s) señalada(s) por el avatar — usa avatarHighlightRange si existe, si no avatarHighlightLine
   useEffect(() => {
     if (!monaco || !editor) return
-    if (!avatarHighlightLine) {
+    const range = avatarHighlightRange ?? (avatarHighlightLine ? { start: avatarHighlightLine, end: avatarHighlightLine } : undefined)
+    if (!range) {
       if (avatarDecoIds.current.length > 0) {
         editor.deltaDecorations(avatarDecoIds.current, [])
         avatarDecoIds.current = []
@@ -185,7 +197,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
       return
     }
     const deco = [{
-      range: new monaco.Range(avatarHighlightLine, 1, avatarHighlightLine, 1),
+      range: new monaco.Range(range.start, 1, range.end, 1),
       options: {
         isWholeLine: true,
         className: 'avatar-highlight-line',
@@ -200,7 +212,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, onMar
         avatarDecoIds.current = []
       }
     }
-  }, [monaco, editor, avatarHighlightLine])
+  }, [monaco, editor, avatarHighlightLine, avatarHighlightRange])
 
   return (
     <div style={{

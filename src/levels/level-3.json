@@ -55,6 +55,6 @@
     }
   ],
   "validators": {
-    "duplicate-code": "const m = code.match(/\\+ 'Empleado: '\\s*\\+/g); return (m || []).length <= 1;"
+    "duplicate-code": "const L=code.split('\\n');const R=[];for(let i=0;i<L.length;i++){if(/\\+ 'Empleado: '\\s*\\+/.test(L[i])){R.push({start:i+1,end:i+1})}}const cnt=R.length;return{score:cnt<=1?1:Math.max(0.1,1/cnt),ranges:R};"
   }
 }

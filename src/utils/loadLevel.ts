@@ -1,14 +1,17 @@
-import type { Level, Severity, Domain, TutorialConfig, AvatarStep } from '../types'
+import type { Level, Severity, Domain, TutorialConfig, AvatarStep, SmellRange } from '../types'
 import type { TestCase } from '../types'
 
 interface RawAvatarStep {
   trigger: AvatarStep['trigger']
   message: string
   highlightLine?: number
+  highlightRange?: { start: number; end: number }
   waitForSmell?: string
   injectCode?: string
   zone?: AvatarStep['zone']
   interactiveLock?: boolean
+  cinematicBlur?: boolean
+  mood?: string
 }
 
 interface RawTutorial {
@@ -49,13 +52,15 @@ interface RawLevel {
 }
 
 export function loadLevel(raw: RawLevel): Level {
-  const validators: Record<string, (code: string) => number> = {}
+  const validators: Record<string, (code: string) => number | { score: number; ranges: SmellRange[] }> = {}
   for (const [key, body] of Object.entries(raw.validators)) {
-    // El validator devuelve un número 0-1 (fracción de progreso).
-    // Si devuelve boolean (legacy), lo convertimos: true→1, false→0.
     const rawFn = new Function('code', body) as (code: string) => unknown
-    validators[key] = (code: string): number => {
+    validators[key] = (code: string): number | { score: number; ranges: SmellRange[] } => {
       const result = rawFn(code)
+      if (typeof result === 'object' && result !== null && 'score' in result) {
+        const r = result as { score: number; ranges?: SmellRange[] }
+        return { score: Math.max(0, Math.min(1, r.score)), ranges: r.ranges ?? [] }
+      }
       if (typeof result === 'number') return Math.max(0, Math.min(1, result))
       return result ? 1 : 0
     }

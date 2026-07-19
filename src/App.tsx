@@ -345,11 +345,13 @@ export default function App() {
             smells={currentLevel.smells}
             onChange={handleCodeChange}
             avatarHighlightLine={state.avatarHighlightLine}
+            avatarHighlightRange={state.avatarHighlightRange}
             onMarkersChange={handleMarkersChange}
             readOnly={state.interactiveLock}
             avatarInjecting={state.avatarInjecting}
             injectTarget={state.injectTarget}
             onInjectionComplete={handleInjectionComplete}
+            smellRanges={state.smellRanges}
           />
         </div>
       </main>

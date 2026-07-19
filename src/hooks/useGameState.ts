@@ -8,14 +8,17 @@ import type {
   CompileStatus,
   SyntaxMarker,
   AvatarZone,
+  SmellRange,
 } from '../types'
 
 function initialState(level: Level): GameState {
   const smellStatus: Record<string, SmellStatus> = {}
   const smellProgress: Record<string, number> = {}
+  const smellRanges: Record<string, SmellRange[]> = {}
   level.smells.forEach((s) => {
     smellStatus[s.id] = 'pending'
     smellProgress[s.id] = 0
+    smellRanges[s.id] = [{ start: s.lineStart, end: s.lineEnd }]
   })
   const tutorial = level.tutorial
   const firstStep = tutorial?.steps?.[0]
@@ -36,6 +39,7 @@ function initialState(level: Level): GameState {
     avatarActive: avatarActiveAtStart,
     avatarMessage: firstStep?.trigger === 'level-start' ? firstStep.message : undefined,
     avatarHighlightLine: firstStep?.highlightLine,
+    avatarHighlightRange: firstStep?.highlightRange,
     avatarHighlightZone: firstStep?.highlightZone,
     avatarCinematicBlur: firstStep?.cinematicBlur,
     avatarInjecting: false,
@@ -43,6 +47,7 @@ function initialState(level: Level): GameState {
     avatarZone: firstStep?.zone ?? 'bottom-right',
     interactiveLock: firstStep?.interactiveLock ?? false,
     avatarMood: firstStep?.mood,
+    smellRanges,
   }
 }
 
@@ -77,27 +82,34 @@ function calcStability(
   return Math.min(Math.round(smellScore + testScore), 100)
 }
 
-/** Recalcula el smellStatus y smellProgress a partir de los validators.
- *  Los validators devuelven 0-1: 0=pending, >0 y <1=partial, >=1=fixed. */
+/** Recalcula el smellStatus, smellProgress y smellRanges a partir de los validators.
+ *  Los validators devuelven 0-1, o { score, ranges } con rangos dinámicos. */
 function recomputeSmells(
   level: Level,
   code: string,
   prevStatus: Record<string, SmellStatus>,
   prevProgress: Record<string, number>,
-): { status: Record<string, SmellStatus>; progress: Record<string, number> } {
+): { status: Record<string, SmellStatus>; progress: Record<string, number>; ranges: Record<string, SmellRange[]> } {
   const status = { ...prevStatus }
   const progress = { ...prevProgress }
+  const ranges: Record<string, SmellRange[]> = {}
   for (const smell of level.smells) {
     const validator = level.smellValidators[smell.id]
     if (validator) {
-      const score = validator(code)
-      progress[smell.id] = score
-      if (score >= 1) status[smell.id] = 'fixed'
-      else if (score > 0) status[smell.id] = 'partial'
+      const result = validator(code)
+      if (typeof result === 'object' && result !== null) {
+        progress[smell.id] = result.score
+        ranges[smell.id] = result.ranges ?? []
+      } else {
+        progress[smell.id] = result
+        ranges[smell.id] = [{ start: smell.lineStart, end: smell.lineEnd }]
+      }
+      if (progress[smell.id] >= 1) status[smell.id] = 'fixed'
+      else if (progress[smell.id] > 0) status[smell.id] = 'partial'
       else status[smell.id] = 'pending'
     }
   }
-  return { status, progress }
+  return { status, progress, ranges }
 }
 
 /** Calcula la energía restante: budget - suma de energyCost de smells fixed. */
@@ -126,6 +138,7 @@ function advanceAvatar(
   avatarZone: AvatarZone
   interactiveLock: boolean
   avatarMood?: string
+  avatarHighlightRange?: SmellRange
 } {
   const tutorial = level.tutorial
   if (!tutorial || tutorial.avatarMode === 'off' || !tutorial.steps) {
@@ -162,6 +175,7 @@ function advanceAvatar(
       avatarStep: step,
       avatarMessage: msg?.message,
       avatarHighlightLine: msg?.highlightLine,
+      avatarHighlightRange: msg?.highlightRange,
       avatarHighlightZone: msg?.highlightZone,
       avatarCinematicBlur: msg?.cinematicBlur,
       avatarInjecting: false,
@@ -177,6 +191,7 @@ function advanceAvatar(
     avatarZone: 'bottom-right',
     interactiveLock: false,
     avatarMood: undefined,
+    avatarHighlightRange: undefined,
   }
 }
 
@@ -224,29 +239,35 @@ export function useGameState(level: Level) {
     setState((prev) => {
       if (prev.levelId !== level.id) return prev
       const codeChanged = code !== level.initialCode
-      const { status: smellStatus, progress: smellProgress } =
+      const { status: smellStatus, progress: smellProgress, ranges: smellRanges } =
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
       const avatar = advanceAvatar(level, smellStatus, prev.avatarStep)
+      const stepAdvanced = avatar.avatarStep !== prev.avatarStep
       return {
         ...prev,
         code,
         smellStatus,
         smellProgress,
+        smellRanges,
         energy: Math.max(energy, 0),
         stability,
         phase: codeChanged ? 'refactor' as const : 'diagnosis' as const,
         avatarStep: avatar.avatarStep,
-        avatarMessage: avatar.avatarMessage,
-        avatarHighlightLine: avatar.avatarHighlightLine,
-        avatarHighlightZone: avatar.avatarHighlightZone,
-        avatarCinematicBlur: avatar.avatarCinematicBlur,
-        avatarInjecting: false,
-        injectTarget: undefined,
-        avatarZone: avatar.avatarZone,
-        interactiveLock: avatar.interactiveLock,
-        avatarMood: avatar.avatarMood,
+        // Solo sobreescribir display del avatar cuando el paso avanza
+        ...(stepAdvanced ? {
+          avatarMessage: avatar.avatarMessage,
+          avatarHighlightLine: avatar.avatarHighlightLine,
+          avatarHighlightRange: avatar.avatarHighlightRange,
+          avatarHighlightZone: avatar.avatarHighlightZone,
+          avatarCinematicBlur: avatar.avatarCinematicBlur,
+          avatarInjecting: false,
+          injectTarget: undefined,
+          avatarZone: avatar.avatarZone,
+          interactiveLock: avatar.interactiveLock,
+          avatarMood: avatar.avatarMood,
+        } : {}),
       }
     })
     setChanged(code !== level.initialCode)
@@ -329,11 +350,11 @@ export function useGameState(level: Level) {
     setState((prev) => {
       if (prev.levelId !== level.id) return prev
       const code = level.solution
-      const { status: smellStatus, progress: smellProgress } =
+      const { status: smellStatus, progress: smellProgress, ranges: smellRanges } =
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
-      return { ...prev, code, smellStatus, smellProgress, energy, stability, phase: 'refactor', avatarInjecting: false, injectTarget: undefined }
+      return { ...prev, code, smellStatus, smellProgress, smellRanges, energy, stability, phase: 'refactor', avatarInjecting: false, injectTarget: undefined }
     })
     setChanged(true)
     setLevelCompleted(false)
@@ -361,7 +382,7 @@ export function useGameState(level: Level) {
     setState((prev) => {
       if (prev.levelId !== level.id) return prev
       const code = tutorial.guidedInjection as string
-      const { status: smellStatus, progress: smellProgress } =
+      const { status: smellStatus, progress: smellProgress, ranges: smellRanges } =
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
@@ -377,6 +398,7 @@ export function useGameState(level: Level) {
         code,
         smellStatus,
         smellProgress,
+        smellRanges,
         energy,
         stability,
         phase: 'refactor',
@@ -397,7 +419,7 @@ export function useGameState(level: Level) {
       const step = tutorial.steps![prev.avatarStep]
       if (!step || !step.injectCode) return prev
       const code = step.injectCode
-      const { status: smellStatus, progress: smellProgress } =
+      const { status: smellStatus, progress: smellProgress, ranges: smellRanges } =
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
@@ -412,6 +434,7 @@ export function useGameState(level: Level) {
         code,
         smellStatus,
         smellProgress,
+        smellRanges,
         energy,
         stability,
         phase: 'refactor',
@@ -466,6 +489,7 @@ export function useGameState(level: Level) {
           avatarZone: 'bottom-right' as const,
           interactiveLock: false,
           avatarMood: undefined,
+          avatarHighlightRange: undefined,
         }
       }
       const step = tutorial.steps![next]
@@ -474,6 +498,7 @@ export function useGameState(level: Level) {
         avatarStep: next,
         avatarMessage: step.message,
         avatarHighlightLine: step.highlightLine,
+        avatarHighlightRange: step.highlightRange,
         avatarHighlightZone: step.highlightZone,
         avatarCinematicBlur: step.cinematicBlur,
         avatarZone: step.zone ?? 'bottom-right',
@@ -490,28 +515,30 @@ export function useGameState(level: Level) {
     setState((prev) => {
       if (prev.levelId !== level.id || !prev.injectTarget) return prev
       const code = prev.injectTarget
-      const { status: smellStatus, progress: smellProgress } =
+      const { status: smellStatus, progress: smellProgress, ranges: smellRanges } =
         recomputeSmells(level, code, prev.smellStatus, prev.smellProgress)
       const energy = calcEnergy(level, smellStatus)
       const stability = calcStability(smellProgress, prev.testResults, level.smells.length)
       const next = prev.avatarStep + 1
       if (next >= tutorial.steps!.length) {
         return {
-          ...prev, code, smellStatus, smellProgress, energy, stability,
+          ...prev, code, smellStatus, smellProgress, smellRanges, energy, stability,
           avatarInjecting: false, injectTarget: undefined,
           avatarMessage: undefined, avatarHighlightLine: undefined,
           avatarHighlightZone: undefined, avatarCinematicBlur: undefined,
           avatarZone: 'bottom-right' as const, interactiveLock: false,
           avatarMood: undefined,
+          avatarHighlightRange: undefined,
         }
       }
       const step = tutorial.steps![next]
       return {
-        ...prev, code, smellStatus, smellProgress, energy, stability,
+        ...prev, code, smellStatus, smellProgress, smellRanges, energy, stability,
         avatarInjecting: false, injectTarget: undefined,
         avatarStep: next,
         avatarMessage: step.message,
         avatarHighlightLine: step.highlightLine,
+        avatarHighlightRange: step.highlightRange,
         avatarHighlightZone: step.highlightZone,
         avatarCinematicBlur: step.cinematicBlur,
         avatarZone: step.zone ?? 'bottom-right',

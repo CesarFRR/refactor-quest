@@ -50,6 +50,6 @@
     }
   ],
   "validators": {
-    "magic-numbers": "const lines = code.split('\\n'); const fb = lines.filter(l => { const t = l.trim(); return !t.startsWith('//') && !t.startsWith('*') && !/^const\\s+[A-Z_]+\\s*=/.test(t); }); const h = /\\b0\\.04\\b/.test(fb.join('\\n')); const hasConst = /const\\s+[A-Z][A-Z_]*\\s*=\\s*0\\.04/.test(code); return !h && hasConst ? 1 : hasConst ? 0.5 : 0;"
+    "magic-numbers": "const L=code.split('\\n');const R=[];for(let i=0;i<L.length;i++){const t=L[i].trim();if(!t.startsWith('//')&&!/^const\\s+[A-Z_]+\\s*=/.test(t)&&/\\b0\\.04\\b/.test(t)){R.push({start:i+1,end:i+1})}}const h=R.length>0;const hasConst=/const\\s+[A-Z][A-Z_]*\\s*=\\s*0\\.04/.test(code);return{score:!h&&hasConst?1:hasConst?0.5:0,ranges:R};"
   }
 }
