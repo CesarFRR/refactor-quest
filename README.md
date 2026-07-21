@@ -1,6 +1,10 @@
 # RefactorQuest
 
-Un juego serio (ABJ) para aprender refactorización de código. El jugador asume el rol de un ingeniero forense que debe diagnosticar y corregir *code smells* en un sistema legacy, escribiendo código real en el editor Monaco (VS Code).
+[![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-blue)](https://cesarfrr.github.io/refactor-quest/)
+
+Juego serio (ABJ) para aprender refactorización de código. Proyecto final del curso *ABJ-d* — Universidad Nacional de Colombia, sede Bogotá.
+
+El jugador asume el rol de un ingeniero forense que debe diagnosticar y corregir *code smells* en un sistema legacy, escribiendo código real en el editor Monaco (VS Code).
 
 ## Stack
 
@@ -27,6 +31,14 @@ npm run build
 npm run preview
 ```
 
+## Enlaces
+
+| Recurso | URL |
+|---------|-----|
+| Juego en vivo | https://cesarfrr.github.io/refactor-quest/ |
+| Repositorio | https://github.com/CesarFRR/refactor-quest |
+| Reporte final | `docs/RefactorQuest_Reporte_Final_crinconro.md` |
+
 ## Deploy (GitHub Pages)
 
 ```bash
@@ -48,8 +60,8 @@ El jugador pasa el 80% del tiempo en los pasos de Observar, Diagnosticar y Edita
 | Learning Mechanic | Nivel Bloom | SGM | Game Mechanic |
 |------------------|------------|-----|---------------|
 | Observation | Analyze | Diagnosticar código | Feedback, Realism |
-| Identify | Understand | Detectar code smells | Selecting / Collecting |
-| Hypothesis | Evaluate | Priorizar con recursos limitados | Resource Management |
+| Identify | Understand | Detectar code smells | Recognizing (*asistido visual*) |
+| Hypothesis | Evaluate | Priorizar con recursos limitados | Resource Management (*energía*) |
 | Action / Task | Apply | Escribir código real | Design / Editing |
 | Feedback | transversal | Tests automáticos | Levels, Progression |
 | Motivation | afectivo | Narrativa de "sistema en crisis" | Rewards / Status |
@@ -65,13 +77,21 @@ El jugador pasa el 80% del tiempo en los pasos de Observar, Diagnosticar y Edita
 ```
 src/
   levels/        ← Niveles en JSON (portables, generables por IA)
-    level-1.json
+    level-0.json ← Nivel demo (Antes/Después, tutorial)
+    level-1.json ← Magic numbers
+    level-2.json ← Long method
+    level-3.json ← Duplicate code
+    level-4.json ← Data clump
+    level-5.json ← Feature envy
+    level-6.json ← Nivel final (integrador)
   utils/
     loadLevel.ts ← Descubre JSONs con import.meta.glob y los carga
+    stars.ts     ← Sistema de estrellas (3/2/1) con persistencia localStorage
   components/    ← StartMenu, LevelSelect, SmellPanel, EditorPanel, LevelComplete
   hooks/         ← useGameState, useTestRunner
   data/          ← ASCII art compartido
   workers/       ← testRunner.worker.ts (sandbox para tests)
+docs/            ← Reporte final e imágenes del entregable
 ```
 
 ## Autor
