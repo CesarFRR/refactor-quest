@@ -10,22 +10,6 @@ Juego serio (ABJ) para aprender refactorización de código. Proyecto final del 
 
 El jugador asume el rol de un ingeniero forense que debe diagnosticar y corregir *code smells* en un sistema legacy, escribiendo código real en el editor Monaco (VS Code).
 
-<p align="center">
-  <img src="docs/refactorquest_wireframe.png" alt="Wireframe del juego" width="50%"/>
-</p>
-
-<p align="center">
-  <em>Wireframe de la interfaz del juego (tomado del reporte final)</em>
-</p>
-
-<p align="center">
-  <img src="docs/refactorquest_level_complete.png" alt="Pantalla de nivel completado" width="50%"/>
-</p>
-
-<p align="center">
-  <em>Pantalla de victoria al completar un nivel</em>
-</p>
-
 ## Stack
 
 | Componente | Tecnología |
@@ -113,6 +97,16 @@ src/
   workers/       ← testRunner.worker.ts (sandbox para tests)
 docs/            ← Reporte final, carátula, logo UNAL, capturas
 ```
+
+<p align="center">
+  <img src="docs/refactorquest_wireframe.png" alt="Wireframe del juego" width="50%"/>
+</p>
+<p align="center"><em>Wireframe de la interfaz del juego</em></p>
+
+<p align="center">
+  <img src="docs/refactorquest_level_complete.png" alt="Pantalla de nivel completado" width="50%"/>
+</p>
+<p align="center"><em>Pantalla de victoria al completar un nivel</em></p>
 
 ## Autor
 
