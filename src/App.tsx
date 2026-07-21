@@ -106,6 +106,7 @@ export default function App() {
     prevLevelId[1](currentLevel.id)
     clearResults()    // setState — seguro durante render
     clearCompile()    // setState — seguro durante render
+    setBeforeAfterView('before')
   }
 
   const handleNextLevel = useCallback(() => {
@@ -135,6 +136,8 @@ export default function App() {
     if (lastInjectTargetRef.current) {
       compileCode(lastInjectTargetRef.current)
     }
+    // Nivel 0: tras la inyección, mostrar la vista "Después"
+    setBeforeAfterView('after')
   }, [completeInjection, compileCode])
 
   const lastInjectTargetRef = useRef<string | undefined>()
@@ -165,6 +168,8 @@ export default function App() {
   const [savedStars, setSavedStars] = useState<Record<number, number>>(loadStars)
   // Estrellas de la entrega actual (para LevelComplete cuando se entrega con deuda)
   const [deliverStars, setDeliverStars] = useState<number | null>(null)
+  // ── Nivel 0: vista Antes/Después para comparar código sucio vs limpio ──
+  const [beforeAfterView, setBeforeAfterView] = useState<'before' | 'after'>('before')
 
   // Silenciar errores internos de Monaco (cancelación de promesas al cambiar modelo)
   useEffect(() => {
@@ -373,11 +378,16 @@ export default function App() {
             avatarHighlightLine={state.avatarHighlightLine}
             avatarHighlightRange={state.avatarHighlightRange}
             onMarkersChange={handleMarkersChange}
-            readOnly={state.interactiveLock}
+            readOnly={state.interactiveLock || currentLevel.id === 0}
             avatarInjecting={state.avatarInjecting}
             injectTarget={state.injectTarget}
             onInjectionComplete={handleInjectionComplete}
             smellRanges={state.smellRanges}
+            beforeAfter={currentLevel.id === 0 ? {
+              before: currentLevel.initialCode,
+              view: beforeAfterView,
+              onViewChange: setBeforeAfterView,
+            } : undefined}
           />
         </div>
       </main>

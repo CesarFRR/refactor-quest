@@ -58,11 +58,17 @@ interface Props {
   injectTarget?: string
   /** Se llama cuando la animación de tipeo termina */
   onInjectionComplete?: () => void
-  /** Rangos dinámicos de smells (para decoraciones precisas) */
+  /** Rangos dinámicos de smells (del validator) */
   smellRanges?: Record<string, SmellRange[]>
+  /** Modo antes/después para nivel 0: tabs para comparar código sucio vs limpio */
+  beforeAfter?: {
+    before: string
+    view: 'before' | 'after'
+    onViewChange: (v: 'before' | 'after') => void
+  }
 }
 
-export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avatarHighlightRange, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete, smellRanges }: Props) {
+export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avatarHighlightRange, onMarkersChange, readOnly, avatarInjecting, injectTarget, onInjectionComplete, smellRanges, beforeAfter }: Props) {
   const monaco = useMonaco()
   const [editor, setEditor] = useState<editor.IStandaloneCodeEditor | null>(null)
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
@@ -214,10 +220,45 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
     }
   }, [monaco, editor, avatarHighlightLine, avatarHighlightRange])
 
+  const isBeforeView = beforeAfter?.view === 'before' && !avatarInjecting
+  const displayCode = isBeforeView ? beforeAfter!.before : code
+
   return (
     <div style={{
       flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative',
     }}>
+      {/* Tabs Antes/Después — exclusivas del nivel 0 */}
+      {beforeAfter && !avatarInjecting && (
+        <div style={{
+          display: 'flex', gap: 0, flexShrink: 0,
+          background: '#21252b', borderBottom: '1px solid #181a1f',
+          padding: '0 12px',
+        }}>
+          {(['before', 'after'] as const).map(v => {
+            const active = beforeAfter.view === v
+            const label = v === 'before' ? '⬅ Antes' : 'Después ➡'
+            return (
+              <button
+                key={v}
+                onClick={() => beforeAfter.onViewChange(v)}
+                style={{
+                  padding: '8px 16px',
+                  background: active ? '#282c34' : 'transparent',
+                  border: 'none',
+                  borderBottom: active ? '2px solid #61afef' : '2px solid transparent',
+                  color: active ? '#61afef' : '#636d83',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      )}
       {avatarInjecting && (
         <div style={{
           position: 'absolute', inset: 0,
@@ -236,14 +277,14 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
       <Editor
         height="100%"
         defaultLanguage="javascript"
-        value={avatarInjecting ? undefined : code}
+        value={avatarInjecting ? undefined : displayCode}
         theme="one-dark-pro"
           onMount={(ed) => { editorRef.current = ed; setEditor(ed) }}
         onChange={(v) => {
-          if (!avatarInjecting) onChange(v ?? '')
+          if (!avatarInjecting && !isBeforeView) onChange(v ?? '')
         }}
         options={{
-          readOnly: readOnly || avatarInjecting || false,
+          readOnly: readOnly || avatarInjecting || isBeforeView || false,
           fontSize: 15,
           lineHeight: 24,
           fontFamily: "'JetBrains Mono', 'Fira Code', monospace",

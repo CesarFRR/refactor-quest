@@ -1,7 +1,7 @@
 {
   "id": 0,
   "title": "Tu primer turno",
-  "narrative": "Bienvenido a RefactorQuest. Este código ya funciona — no tienes que arreglar nada. Sólo quieres aprender el flujo: editar código, ejecutar tests y leer el panel. Codi te guía paso a paso.",
+  "narrative": "Bienvenido a RefactorQuest. Este es un nivel de DEMOSTRACIÓN: Codi refactoriza por ti para que veas el antes y después. Tú sólo observas y ejecutas los tests al final.",
   "energyBudget": 10,
   "maxAttempts": 99,
   "domain": "billing",
@@ -35,7 +35,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "La **Estabilidad del sistema** mide qué tan vivo está el código. Llega al 100% cuando todos los smells están muertos y los tests pasan. Ahora está en 50% — como un paciente en sala de espera.",
+        "message": "La **Estabilidad del sistema** mide qué tan vivo está el código. Llega al 100% cuando todos los smells están muertos y los tests pasan. Ahora está baja — como un paciente en sala de espera.",
         "highlightZone": "stability",
         "zone": "panel"
       },
@@ -65,33 +65,59 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Mira cómo se hace: voy a editar el código por ti. Pulsa 'Siguiente' y verás magia.",
+        "message": "Mira este código. **Funciona**, pero huele. Hay números mágicos por todos lados (3, 18, 25, 60, 10, 20), una sola función que hace TODO (validar, calcular descuento, categorizar, imprimir), y lógica duplicada. Voy a refactorizarlo por ti. Pulsa 'Siguiente' y mira la magia.",
         "highlightZone": "editor",
         "zone": "editor",
-        "injectCode": "// Sistema de facturación — ejemplo básico\n// ¡Editado por Codi! Tu turno la próxima vez.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n"
+        "injectCode": "// Registro de usuario — v2.0 (refactorizado)\n// Números mágicos → constantes con nombre.\n// Una función = una responsabilidad.\n\nconst NOMBRE_MIN = 3;\nconst EDAD_MIN = 18;\nconst EDAD_JOVEN = 25;\nconst EDAD_SENIOR = 60;\nconst DESC_JOVEN = 10;\nconst DESC_SENIOR = 20;\n\nfunction validar(nombre, email, edad) {\n  if (nombre.length < NOMBRE_MIN) return { ok: false, error: 'Nombre muy corto' };\n  if (!email.includes('@')) return { ok: false, error: 'Email invalido' };\n  if (edad < EDAD_MIN) return { ok: false, error: 'Debe ser mayor de edad' };\n  return null;\n}\n\nfunction calcularDescuento(edad) {\n  if (edad < EDAD_JOVEN) return DESC_JOVEN;\n  if (edad >= EDAD_SENIOR) return DESC_SENIOR;\n  return 0;\n}\n\nfunction categorizar(edad) {\n  if (edad < EDAD_JOVEN) return 'joven';\n  if (edad >= EDAD_SENIOR) return 'senior';\n  return 'normal';\n}\n\nfunction registrarUsuario(nombre, email, edad) {\n  const error = validar(nombre, email, edad);\n  if (error) return error;\n  const categoria = categorizar(edad);\n  const descuento = calcularDescuento(edad);\n  console.log(`Usuario: ${nombre} | Email: ${email} | Cat: ${categoria}`);\n  return { ok: true, nombre, email, categoria, descuento };\n}\n"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡El código cambió! Ahora hazlo tú: **▶ Ejecutar tests**. La estabilidad subirá y sentirás esa dopamina. Ese es el ciclo: editar, probar, celebrar.",
+        "message": "¿Ves la diferencia? Usa las tabs **'Antes'** y **'Después'** arriba del editor para comparar. El código limpio dice QUÉ hace, no sólo CÓMO. Cada función tiene un solo trabajo: `validar` valida, `calcularDescuento` calcula, `categorizar` categoriza. Los números mágicos ahora son `EDAD_JOVEN`, `DESC_SENIOR`... nombres que se entienden solos. **Eso** es refactorizar: cambiar la estructura sin cambiar el comportamiento.",
+        "highlightZone": "editor",
+        "zone": "editor"
+      },
+      {
+        "trigger": "step-confirmed",
+        "message": "Ahora pulsa **▶ Ejecutar tests**. Verás que el código refactorizado sigue funcionando igual — los tests pasan igual que antes. Refactorizar NO rompe nada, sólo lo deja más limpio. Ese es el ciclo: editar, probar, celebrar.",
         "highlightZone": "run-tests",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡Perfecto! El ciclo: 🛠️ editar → ✅ compilar → 🧪 testear → 📈 estabilizar. Todo al 100% y smells arreglados = nivel completado. ¡A practicar, que esto se pone intenso!",
+        "message": "¡Perfecto! El ciclo: 🛠️ editar → ✅ compilar → 🧪 testear → 📈 estabilizar. Todo al 100% y smells arreglados = nivel completado. En los siguientes niveles TÚ serás quien refactorice. Yo te guiaré, pero el código es tuyo. ¡A practicar, que esto se pone intenso!",
         "highlightZone": "editor",
         "zone": "editor"
       }
     ]
   },
-  "initialCode": "// Sistema de facturación — ejemplo básico\n// Edita este comentario para empezar.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n",
-  "solution": "// Sistema de facturación — ejemplo básico\n// Editado por el jugador.\n\nfunction processOrder(items, customerId) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total = total + items[i].price * items[i].qty;\n  }\n  const IVA_RATE = 0.19;\n  const totalConIva = total * (1 + IVA_RATE);\n  return {\n    total: totalConIva,\n    cliente: customerId,\n  };\n}\n",
+  "initialCode": "// Registro de usuario — v0.1 (código legacy)\n// Funciona, pero huele.\n\nfunction registrarUsuario(nombre, email, edad) {\n  if (nombre.length < 3) {\n    return { ok: false, error: 'Nombre muy corto' };\n  }\n  if (email.indexOf('@') === -1) {\n    return { ok: false, error: 'Email invalido' };\n  }\n  if (edad < 18) {\n    return { ok: false, error: 'Debe ser mayor de edad' };\n  }\n  let descuento = 0;\n  if (edad < 25) {\n    descuento = 10;\n  }\n  if (edad >= 60) {\n    descuento = 20;\n  }\n  let categoria = 'normal';\n  if (edad < 25) {\n    categoria = 'joven';\n  }\n  if (edad >= 60) {\n    categoria = 'senior';\n  }\n  console.log('Usuario: ' + nombre + ' | Email: ' + email + ' | Cat: ' + categoria);\n  return {\n    ok: true,\n    nombre: nombre,\n    email: email,\n    categoria: categoria,\n    descuento: descuento,\n  };\n}\n",
+  "solution": "// Registro de usuario — v2.0 (refactorizado)\n// Números mágicos → constantes con nombre.\n// Una función = una responsabilidad.\n\nconst NOMBRE_MIN = 3;\nconst EDAD_MIN = 18;\nconst EDAD_JOVEN = 25;\nconst EDAD_SENIOR = 60;\nconst DESC_JOVEN = 10;\nconst DESC_SENIOR = 20;\n\nfunction validar(nombre, email, edad) {\n  if (nombre.length < NOMBRE_MIN) return { ok: false, error: 'Nombre muy corto' };\n  if (!email.includes('@')) return { ok: false, error: 'Email invalido' };\n  if (edad < EDAD_MIN) return { ok: false, error: 'Debe ser mayor de edad' };\n  return null;\n}\n\nfunction calcularDescuento(edad) {\n  if (edad < EDAD_JOVEN) return DESC_JOVEN;\n  if (edad >= EDAD_SENIOR) return DESC_SENIOR;\n  return 0;\n}\n\nfunction categorizar(edad) {\n  if (edad < EDAD_JOVEN) return 'joven';\n  if (edad >= EDAD_SENIOR) return 'senior';\n  return 'normal';\n}\n\nfunction registrarUsuario(nombre, email, edad) {\n  const error = validar(nombre, email, edad);\n  if (error) return error;\n  const categoria = categorizar(edad);\n  const descuento = calcularDescuento(edad);\n  console.log(`Usuario: ${nombre} | Email: ${email} | Cat: ${categoria}`);\n  return { ok: true, nombre, email, categoria, descuento };\n}\n",
   "smells": [],
   "tests": [
     {
-      "id": "test-total-con-iva",
-      "description": "El total incluye IVA (19%)",
-      "fn": "const items = [{ price: 100, qty: 2 }];\nconst result = processOrder(items, 'CLI-001');\nconst expected = 200 * 1.19;\nif (Math.abs(result.total - expected) > 0.01)\n  throw new Error(`Esperado ${expected}, recibido ${result.total}`);"
+      "id": "test-nombre-corto",
+      "description": "Nombre muy corto → rechazado",
+      "fn": "const r = registrarUsuario('Jo', 'jo@email.com', 20);\nif (r.ok !== false) throw new Error('Debe rechazar nombre corto');"
+    },
+    {
+      "id": "test-email-invalido",
+      "description": "Email sin @ → rechazado",
+      "fn": "const r = registrarUsuario('Jose', 'sin-arroba', 20);\nif (r.ok !== false) throw new Error('Debe rechazar email sin @');"
+    },
+    {
+      "id": "test-menor-edad",
+      "description": "Menor de edad → rechazado",
+      "fn": "const r = registrarUsuario('Jose', 'jose@email.com', 15);\nif (r.ok !== false) throw new Error('Debe rechazar menor de edad');"
+    },
+    {
+      "id": "test-usuario-joven",
+      "description": "Usuario de 20 años → categoría joven, descuento 10",
+      "fn": "const r = registrarUsuario('Ana', 'ana@email.com', 20);\nif (r.ok !== true) throw new Error('Debe aceptar usuario valido');\nif (r.categoria !== 'joven') throw new Error('20 anos es joven');\nif (r.descuento !== 10) throw new Error('Joven tiene descuento 10');"
+    },
+    {
+      "id": "test-usuario-senior",
+      "description": "Usuario de 65 años → categoría senior, descuento 20",
+      "fn": "const r = registrarUsuario('Beto', 'beto@email.com', 65);\nif (r.categoria !== 'senior') throw new Error('65 anos es senior');\nif (r.descuento !== 20) throw new Error('Senior tiene descuento 20');"
     }
   ],
   "validators": {}
