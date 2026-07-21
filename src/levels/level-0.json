@@ -17,7 +17,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Cada nivel te tira código con olor a viejo. Tu trabajo: editarlo, correr pruebas y dejar el sistema estable. Al principio te tomo de la mano. Después... estarás solo. ¿Listo? Conozcamos el tablero.",
+        "message": "Cada nivel te tira código que funciona, pero que tiene problemas de diseño. En programación llamamos **smells** a esos problemas — un smell es algo en el código que no rompe nada hoy, pero que va a dificultar el mantenimiento mañana. Tu trabajo: identificarlos, corregirlos, correr pruebas y dejar el sistema estable. Al principio te tomo de la mano. Después... estarás solo. ¿Listo? Conozcamos el tablero.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },
@@ -29,7 +29,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Aquí, los **Smells detectados**. Código con problemas. Los **críticos** (rojo) son incendios activos. Los **warnings** (amarillo) son goteras. Ambos consumen energía arreglarlos. Cuando lo logres, aparecen tachados con ✓. Es catártico.",
+        "message": "Aquí, los **Smells detectados**. Código con problemas. Los **críticos** (rojo) son incendios activos. Los **warnings** (amarillo) son goteras. Ambos consumen energía arreglarlos. Cuando lo logres, aparecen tachados con ✓.",
         "highlightZone": "smells-list",
         "zone": "panel"
       },
@@ -41,32 +41,32 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "La **Energía disponible** es tu café mental. Cada smell te cuesta un poco. Si llega a cero, toca reiniciar el nivel. Gástala como si fuera el último día del sprint.",
+        "message": "La **Energía disponible** es tu recurso. Cada smell te cuesta un poco. Si llega a cero, toca reiniciar el nivel. Gástala priorizando los smells más importantes primero.",
         "highlightZone": "energy",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Este es el **Editor**. Tu campo de batalla. A la izquierda, números de línea. Cuando veas una línea con fondo amarillo, ahí está el smell.",
+        "message": "Este es el **Editor**. Tu espacio de trabajo. A la izquierda, números de línea. Cuando veas una línea con fondo amarillo, ahí está el smell.",
         "highlightZone": "editor",
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
         "message": "Mira esta función. Se llama `registrarUsuario` y hace de todo: valida datos, calcula descuento, categoriza al usuario, imprime el resultado. Una función, cinco trabajos.",
-        "highlightLine": 4,
+        "highlightRange": { "start": 4, "end": 36 },
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
-        "message": "Además, aquí tenemos números que no sabemos qué representan. ¿El 3 qué es? ¿Y el 18? Números sueltos, sin nombre.",
-        "highlightLine": 5,
+        "message": "Además, aquí tenemos números que no sabemos qué representan. ¿El 3 qué es? ¿Y el 18? ¿Y el 25, el 60, el 10, el 20? Números sueltos, sin nombre.",
+        "highlightRange": { "start": 5, "end": 20 },
         "zone": "editor"
       },
       {
         "trigger": "step-confirmed",
         "message": "Y esto: `edad < 25` aparece aquí, y otra vez más abajo. `edad >= 60` también se repite. Mismas condiciones, escritas dos veces.",
-        "highlightLine": 15,
+        "highlightRange": { "start": 15, "end": 27 },
         "zone": "editor"
       },
       {

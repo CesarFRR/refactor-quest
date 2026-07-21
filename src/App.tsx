@@ -385,6 +385,7 @@ export default function App() {
             smellRanges={state.smellRanges}
             beforeAfter={currentLevel.id === 0 ? {
               before: currentLevel.initialCode,
+              after: currentLevel.solution,
               view: beforeAfterView,
               onViewChange: setBeforeAfterView,
             } : undefined}

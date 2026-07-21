@@ -63,6 +63,7 @@ interface Props {
   /** Modo antes/después para nivel 0: tabs para comparar código sucio vs limpio */
   beforeAfter?: {
     before: string
+    after: string
     view: 'before' | 'after'
     onViewChange: (v: 'before' | 'after') => void
   }
@@ -221,7 +222,7 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
   }, [monaco, editor, avatarHighlightLine, avatarHighlightRange])
 
   const isBeforeView = beforeAfter?.view === 'before' && !avatarInjecting
-  const displayCode = isBeforeView ? beforeAfter!.before : code
+  const displayCode = avatarInjecting ? undefined : (isBeforeView ? beforeAfter!.before : beforeAfter!.after)
 
   return (
     <div style={{
