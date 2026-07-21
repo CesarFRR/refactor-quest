@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo-unal.jpg" alt="UNAL" width="120"/>
+</p>
+
 # RefactorQuest
 
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-blue)](https://cesarfrr.github.io/refactor-quest/)
@@ -91,7 +95,7 @@ src/
   hooks/         ← useGameState, useTestRunner
   data/          ← ASCII art compartido
   workers/       ← testRunner.worker.ts (sandbox para tests)
-docs/            ← Reporte final e imágenes del entregable
+docs/            ← Reporte final, carátula, logo UNAL, capturas
 ```
 
 ## Autor
