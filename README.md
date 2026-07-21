@@ -8,6 +8,10 @@
 
 Juego serio (ABJ) para aprender refactorización de código. Proyecto final del curso *ABJ-d* — Universidad Nacional de Colombia, sede Bogotá.
 
+<p align="center">
+  <img src="docs/portada-caratula.jpg" alt="Portada" width="60%"/>
+</p>
+
 El jugador asume el rol de un ingeniero forense que debe diagnosticar y corregir *code smells* en un sistema legacy, escribiendo código real en el editor Monaco (VS Code).
 
 ## Stack
