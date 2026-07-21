@@ -54,6 +54,8 @@ export default function App() {
   const hasErrorMarkers = useMemo(() => syntaxMarkers.some(m => m.severity === 'error'), [syntaxMarkers])
   // ── Nivel 0: vista Antes/Después para comparar código sucio vs limpio ──
   const [beforeAfterView, setBeforeAfterView] = useState<'before' | 'after'>('before')
+  // Se activa tras la inyección de Cody, no depende de state.code
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false)
 
   // Persistir estado en sessionStorage (sobrevive a F5, se borra al cerrar pestaña)
   useEffect(() => {
@@ -109,6 +111,7 @@ export default function App() {
     clearResults()    // setState — seguro durante render
     clearCompile()    // setState — seguro durante render
     setBeforeAfterView('before')
+    setShowBeforeAfter(false)
   }
 
   const handleNextLevel = useCallback(() => {
@@ -124,12 +127,8 @@ export default function App() {
 
   const handleRunTests = useCallback(() => {
     setAngryOnTest(hasErrorMarkers)
-    // Nivel 0: ejecutar tests sobre el código que se muestra (Antes/Después)
-    const codeToTest = currentLevel.id === 0 && state.code !== currentLevel.initialCode && beforeAfterView === 'before'
-      ? currentLevel.initialCode
-      : state.code
-    runTests(codeToTest, currentLevel.tests)
-  }, [state.code, currentLevel.tests, runTests, hasErrorMarkers, currentLevel.id, currentLevel.initialCode, beforeAfterView])
+    runTests(state.code, currentLevel.tests)
+  }, [state.code, currentLevel.tests, runTests, hasErrorMarkers])
 
   // ── Capa 2: compilar al cambiar el código (debounce interno del hook) ──
   const handleCodeChange = useCallback((code: string) => {
@@ -142,8 +141,9 @@ export default function App() {
     if (lastInjectTargetRef.current) {
       compileCode(lastInjectTargetRef.current)
     }
-    // Nivel 0: tras la inyección, mostrar la vista "Después"
+    // Nivel 0: tras la inyección, mostrar la vista "Después" y activar tabs
     setBeforeAfterView('after')
+    setShowBeforeAfter(true)
   }, [completeInjection, compileCode])
 
   const lastInjectTargetRef = useRef<string | undefined>()
@@ -376,7 +376,7 @@ export default function App() {
             injectTarget={state.injectTarget}
             onInjectionComplete={handleInjectionComplete}
             smellRanges={state.smellRanges}
-            beforeAfter={currentLevel.id === 0 && state.code !== currentLevel.initialCode ? {
+            beforeAfter={currentLevel.id === 0 && showBeforeAfter ? {
               before: currentLevel.initialCode,
               after: currentLevel.solution,
               view: beforeAfterView,
