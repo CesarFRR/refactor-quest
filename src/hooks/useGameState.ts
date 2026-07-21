@@ -314,7 +314,10 @@ export function useGameState(level: Level) {
       // Completado: TODOS los smells fixed + TODOS los tests pasan + código modificado
       const allSmellsFixed = level.smells.length === 0
         || Object.values(prev.smellStatus).every(s => s === 'fixed')
-      const isComplete = allTestsPassed && codeChanged && allSmellsFixed && stability >= 75
+      // Nivel 0 (demo, sin smells): completo si tests pasan, sin requerir codeChanged
+      const isDemoLevel = level.smells.length === 0 && level.tutorial?.avatarMode === 'reveal-solution'
+      const isComplete = allTestsPassed && allSmellsFixed && stability >= 75
+        && (isDemoLevel || codeChanged)
       if (isComplete) {
         // Capturar el levelId actual en el closure; el callback verifica
         // currentLevelIdRef al dispararse para auto-invalidarse si el nivel cambió.

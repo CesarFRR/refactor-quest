@@ -357,7 +357,12 @@ export default function App() {
       <main style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         <SmellPanel
           level={currentLevel}
-          state={{ ...state, testResults: results }}
+          state={{
+            ...state,
+            testResults: results,
+            // Nivel 0 vista "Antes": mostrar estabilidad baja para ilustrar código sucio
+            stability: currentLevel.id === 0 && beforeAfterView === 'before' ? 30 : state.stability,
+          }}
           onRunTests={handleRunTests}
           running={running}
           locked={state.interactiveLock}

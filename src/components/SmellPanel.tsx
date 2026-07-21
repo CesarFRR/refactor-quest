@@ -66,12 +66,12 @@ export function SmellPanel({ level, state, onRunTests, running, locked, testsVie
   const allSmellsFixed = level.smells.length === 0
     || level.smells.every(s => state.smellStatus[s.id] === 'fixed')
   // 'won' debe coincidir EXACTAMENTE con 'isComplete' de useGameState.applyTestResults
-  const won = allPassed && allSmellsFixed && state.stability >= 75 && state.code !== level.initialCode
+  const isDemoLevel = level.smells.length === 0 && level.tutorial?.avatarMode === 'reveal-solution'
+  const won = allPassed && allSmellsFixed && state.stability >= 75
+    && (isDemoLevel || codeChanged)
   const codeChanged = state.code !== level.initialCode
   // Tests bloqueados si: Codygo sin cambios, syntax error, ya corriendo, locked, o smellScore < 0.5
   const testsLocked = (state.smellScore ?? 0) < 0.5
-  // Nivel 0: el usuario no edita código (demo), pero puede ejecutar tests tras la inyección
-  const isDemoLevel = level.id === 0
   // testsViewLocked: en nivel 0, si está viendo "Antes", no puede ejecutar tests
   const canRun = (isDemoLevel || codeChanged) && !running && !locked && !testsLocked && !testsViewLocked
 
