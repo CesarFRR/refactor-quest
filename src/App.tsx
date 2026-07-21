@@ -430,16 +430,6 @@ export default function App() {
         }} />
       )}
 
-      {/* ── Overlay sutil cuando Cody señala algo ── */}
-      {state.avatarMessage && (state.avatarHighlightLine || state.avatarHighlightZone) && !levelCompleted && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.08)',
-          zIndex: 50,
-          pointerEvents: 'none',
-        }} />
-      )}
-
       {/* ── Rectángulo de resalte sobre la zona señalada (oculto durante blur o level complete) ── */}
       <ZoneHighlightOverlay
         zoneId={state.avatarHighlightZone ?? (state.avatarHighlightLine ? 'editor' : undefined)}

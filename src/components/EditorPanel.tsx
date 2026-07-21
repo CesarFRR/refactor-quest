@@ -266,14 +266,6 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
           pointerEvents: 'none',
         }} />
       )}
-      {readOnly && !avatarInjecting && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'rgba(0,0,0,0.3)',
-          zIndex: 100,
-          pointerEvents: 'none',
-        }} />
-      )}
       <Editor
         height="100%"
         defaultLanguage="javascript"
