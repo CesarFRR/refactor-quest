@@ -28,10 +28,10 @@ export interface CodeSmell {
 /** Dominio temático del nivel (para pédagogía por capas) */
 export type Domain = 'billing' | 'payroll'
 
-/** Expresiones faciales del avatar Codi */
+/** Expresiones faciales del avatar Cody */
 export type Mood = 'idle' | 'talking' | 'pointing' | 'celebrating' | 'sleeping' | 'error' | 'thinking' | 'happy' | 'confused' | 'amazed' | 'tired'
 
-/** Modos de intervención del avatar Codi */
+/** Modos de intervención del avatar Cody */
 export type AvatarMode =
   | 'reveal-solution'   // Cody hace todo, jugador observa (nivel 0)
   | 'walkthrough'       // Cody guía paso a paso (niveles 1-2)
@@ -101,7 +101,7 @@ export interface AvatarStep {
   interactiveLock?: boolean
   /** Si true, difumina todo excepto Cody y su burbuja (efecto cinematográfico) */
   cinematicBlur?: boolean
-  /** Emoción explícita de Codi en este paso. Si se omite, se detecta del mensaje. */
+  /** Emoción explícita de Cody en este paso. Si se omite, se detecta del mensaje. */
   mood?: Mood
 }
 
@@ -200,7 +200,7 @@ export interface GameState {
   smellProgress: Record<string, number>
   /** Rangos dinámicos de cada smell en el código actual (actualizados por validator) */
   smellRanges: Record<string, SmellRange[]>
-  /** Emoción explícita de Codi (si el paso la define) */
+  /** Emoción explícita de Cody (si el paso la define) */
   avatarMood?: Mood
 }
 

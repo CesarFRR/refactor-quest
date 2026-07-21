@@ -124,8 +124,12 @@ export default function App() {
 
   const handleRunTests = useCallback(() => {
     setAngryOnTest(hasErrorMarkers)
-    runTests(state.code, currentLevel.tests)
-  }, [state.code, currentLevel.tests, runTests, hasErrorMarkers])
+    // Nivel 0: ejecutar tests sobre el código que se muestra (Antes/Después)
+    const codeToTest = currentLevel.id === 0 && state.code !== currentLevel.initialCode && beforeAfterView === 'before'
+      ? currentLevel.initialCode
+      : state.code
+    runTests(codeToTest, currentLevel.tests)
+  }, [state.code, currentLevel.tests, runTests, hasErrorMarkers, currentLevel.id, currentLevel.initialCode, beforeAfterView])
 
   // ── Capa 2: compilar al cambiar el código (debounce interno del hook) ──
   const handleCodeChange = useCallback((code: string) => {
@@ -279,7 +283,7 @@ export default function App() {
     undefined
 
   const injectLabel =
-    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Codi ayude 🤝' : undefined
+    avatarMode === 'guided-smell' && state.avatarActive ? 'Deja que Cody ayude 🤝' : undefined
 
   if (screen === 'menu') {
     return <StartMenu onStart={() => setScreen('select')} levelCount={levels.length} />
@@ -371,7 +375,7 @@ export default function App() {
             injectTarget={state.injectTarget}
             onInjectionComplete={handleInjectionComplete}
             smellRanges={state.smellRanges}
-            beforeAfter={currentLevel.id === 0 ? {
+            beforeAfter={currentLevel.id === 0 && state.code !== currentLevel.initialCode ? {
               before: currentLevel.initialCode,
               after: currentLevel.solution,
               view: beforeAfterView,

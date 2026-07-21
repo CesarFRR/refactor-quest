@@ -1,7 +1,7 @@
 {
   "id": 0,
   "title": "Tu primer turno",
-  "narrative": "Bienvenido a RefactorQuest. Este es un nivel de DEMOSTRACIÓN: Codi refactoriza por ti para que veas el antes y después. Tú sólo observas y ejecutas los tests al final.",
+  "narrative": "Bienvenido a RefactorQuest. Este es un nivel de DEMOSTRACIÓN: Cody refactoriza por ti para que veas el antes y después. Tú sólo observas y ejecutas los tests al final.",
   "energyBudget": 10,
   "maxAttempts": 99,
   "domain": "billing",
@@ -11,7 +11,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "¡Hola! Soy **Codi**. Llevo años en las trincheras del código heredado y créeme: he visto cosas **increíbles** — y no siempre buenas. Este es RefactorQuest, donde aprenderás a oler el código podrido y limpiarlo antes de que se coma vivo al proyecto.",
+        "message": "¡Hola! Soy **Cody**. Llevo años en las trincheras del código heredado y créeme: he visto cosas **increíbles** — y no siempre buenas. Este es RefactorQuest, donde aprenderás a oler el código podrido y limpiarlo antes de que se coma vivo al proyecto.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },

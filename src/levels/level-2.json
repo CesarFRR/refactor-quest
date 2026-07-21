@@ -1,7 +1,7 @@
 {
   "id": 2,
   "title": "La función que hace de todo",
-  "narrative": "processOrder calcula el total Y además formatea el resumen Y lo imprime en consola. Tres responsabilidades en una sola función. Divídela: que cada función haga UNA cosa. Codi te guía paso a paso.",
+  "narrative": "processOrder calcula el total Y además formatea el resumen Y lo imprime en consola. Tres responsabilidades en una sola función. Divídela: que cada función haga UNA cosa. Cody te guía paso a paso.",
   "energyBudget": 10,
   "maxAttempts": 5,
   "domain": "billing",

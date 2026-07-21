@@ -66,7 +66,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
   // 'won' debe coincidir EXACTAMENTE con 'isComplete' de useGameState.applyTestResults
   const won = allPassed && allSmellsFixed && state.stability >= 75 && state.code !== level.initialCode
   const codeChanged = state.code !== level.initialCode
-  // Tests bloqueados si: codigo sin cambios, syntax error, ya corriendo, locked, o smellScore < 0.5
+  // Tests bloqueados si: Codygo sin cambios, syntax error, ya corriendo, locked, o smellScore < 0.5
   const testsLocked = (state.smellScore ?? 0) < 0.5
   // Nivel 0: el usuario no edita código (demo), pero puede ejecutar tests tras la inyección
   const isDemoLevel = level.id === 0
@@ -212,7 +212,7 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
 
       {/* ── Botón + resultados — siempre visible ── */}
       <div style={{ padding: '12px 18px', borderTop: '1px solid #2c313a' }}>
-        {!codeChanged && (
+        {!codeChanged && !isDemoLevel && (
           <p style={{ margin: '0 0 8px', fontSize: 12, color: '#e5c07b', textAlign: 'center' }}>
             Edita el código antes de ejecutar tests
           </p>
