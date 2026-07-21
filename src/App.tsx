@@ -52,6 +52,8 @@ export default function App() {
   // ── Syntax markers del editor (para Cody enojado) ──
   const [syntaxMarkers, setSyntaxMarkers] = useState<SyntaxMarker[]>([])
   const hasErrorMarkers = useMemo(() => syntaxMarkers.some(m => m.severity === 'error'), [syntaxMarkers])
+  // ── Nivel 0: vista Antes/Después para comparar código sucio vs limpio ──
+  const [beforeAfterView, setBeforeAfterView] = useState<'before' | 'after'>('before')
 
   // Persistir estado en sessionStorage (sobrevive a F5, se borra al cerrar pestaña)
   useEffect(() => {
@@ -168,8 +170,6 @@ export default function App() {
   const [savedStars, setSavedStars] = useState<Record<number, number>>(loadStars)
   // Estrellas de la entrega actual (para LevelComplete cuando se entrega con deuda)
   const [deliverStars, setDeliverStars] = useState<number | null>(null)
-  // ── Nivel 0: vista Antes/Después para comparar código sucio vs limpio ──
-  const [beforeAfterView, setBeforeAfterView] = useState<'before' | 'after'>('before')
 
   // Silenciar errores internos de Monaco (cancelación de promesas al cambiar modelo)
   useEffect(() => {
