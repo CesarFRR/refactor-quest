@@ -221,8 +221,11 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
     }
   }, [monaco, editor, avatarHighlightLine, avatarHighlightRange])
 
-  const isBeforeView = beforeAfter?.view === 'before' && !avatarInjecting
-  const displayCode = avatarInjecting ? undefined : (isBeforeView ? beforeAfter!.before : beforeAfter!.after)
+  const displayCode = avatarInjecting
+    ? undefined
+    : beforeAfter
+      ? (beforeAfter.view === 'before' ? beforeAfter.before : beforeAfter.after)
+      : code
 
   return (
     <div style={{
@@ -274,10 +277,10 @@ export function EditorPanel({ code, smells, onChange, avatarHighlightLine, avata
         theme="one-dark-pro"
           onMount={(ed) => { editorRef.current = ed; setEditor(ed) }}
         onChange={(v) => {
-          if (!avatarInjecting && !isBeforeView) onChange(v ?? '')
+          if (!avatarInjecting && !(beforeAfter && beforeAfter.view === 'before')) onChange(v ?? '')
         }}
         options={{
-          readOnly: readOnly || avatarInjecting || isBeforeView || false,
+          readOnly: readOnly || avatarInjecting || (beforeAfter?.view === 'before') || false,
           fontSize: 15,
           lineHeight: 24,
           fontFamily: "'JetBrains Mono', 'Fira Code', monospace",

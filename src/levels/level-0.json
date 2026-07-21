@@ -17,7 +17,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Cada nivel te tira código que funciona, pero que tiene problemas de diseño. En programación llamamos **smells** a esos problemas — un smell es algo en el código que no rompe nada hoy, pero que va a dificultar el mantenimiento mañana. Tu trabajo: identificarlos, corregirlos, correr pruebas y dejar el sistema estable. Al principio te tomo de la mano. Después... estarás solo. ¿Listo? Conozcamos el tablero.",
+        "message": "Cada nivel te tira código que funciona, pero que tiene problemas de diseño. En programación llamamos **smells** a esos problemas — un smell es algo en el código que no rompe nada hoy, pero que va a dificultar el mantenimiento mañana. Tu trabajo: identificarlos, corregirlos, correr pruebas y dejar el sistema estable. Al principio te voy a ayudar. Después... estarás solo. ¿Listo? Conozcamos el tablero.",
         "zone": "bottom-right",
         "cinematicBlur": true
       },
@@ -53,7 +53,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Mira esta función. Se llama `registrarUsuario` y hace de todo: valida datos, calcula descuento, categoriza al usuario, imprime el resultado. Una función, cinco trabajos.",
+        "message": "Mira esta función. Se llama `registrarUsuario` y hace de todo: valida datos, calcula descuento, categoriza al usuario, imprime el resultado. Una función, CINCO TRABAJOS.",
         "highlightRange": { "start": 4, "end": 36 },
         "zone": "editor"
       },
@@ -82,7 +82,7 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Arriba a la derecha, las **Estadísticas**: tests pasados, intentos, estabilidad. Abajo verás más: Sintaxis (errores en rojo), Compilación y Fase. Info de batalla, básicamente.",
+        "message": "Arriba a la derecha, las **Estadísticas**: tests pasados, intentos, estabilidad. Abajo a la izquierda verás más: Sintaxis (errores en rojo), Compilación y Fase. Información del estado del código en tiempo real.",
         "highlightZone": "header-stats",
         "zone": "footer"
       },
@@ -101,15 +101,15 @@
       },
       {
         "trigger": "step-confirmed",
-        "message": "Ahora pulsa **▶ Ejecutar tests**. Verás que el código refactorizado sigue funcionando igual — los tests pasan igual que antes. Refactorizar NO rompe nada, sólo lo deja más limpio. Ese es el ciclo: editar, probar, celebrar.",
+        "message": "Ahora pulsa **▶ Ejecutar tests**. Verás que el código refactorizado sigue funcionando igual — los tests pasan igual que antes. Refactorizar NO rompe nada, sólo lo deja más limpio.",
         "highlightZone": "run-tests",
         "zone": "panel"
       },
       {
         "trigger": "step-confirmed",
-        "message": "¡Perfecto! El ciclo: 🛠️ editar → ✅ compilar → 🧪 testear → 📈 estabilizar. Todo al 100% y smells arreglados = nivel completado. En los siguientes niveles TÚ serás quien refactorice. Yo te guiaré, pero el código es tuyo. ¡A practicar, que esto se pone intenso!",
-        "highlightZone": "editor",
-        "zone": "editor"
+        "message": "¡Nos vemos en el siguiente nivel! Allá TÚ serás quien refactorice. Yo te guiaré, pero el código es tuyo. Dale a **▶ Ejecutar tests** para superar este nivel.",
+        "highlightZone": "run-tests",
+        "zone": "panel"
       }
     ]
   },

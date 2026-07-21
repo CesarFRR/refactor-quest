@@ -72,7 +72,9 @@ export function SmellPanel({ level, state, onRunTests, running, locked, onDelive
   const codeChanged = state.code !== level.initialCode
   // Tests bloqueados si: codigo sin cambios, syntax error, ya corriendo, locked, o smellScore < 0.5
   const testsLocked = (state.smellScore ?? 0) < 0.5
-  const canRun = codeChanged && !running && !locked && !testsLocked
+  // Nivel 0: el usuario no edita código (demo), pero puede ejecutar tests tras la inyección
+  const isDemoLevel = level.id === 0
+  const canRun = (isDemoLevel || codeChanged) && !running && !locked && !testsLocked
 
   return (
     <aside className="rq-panel" style={{

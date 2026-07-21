@@ -11,7 +11,7 @@
     "steps": [
       {
         "trigger": "level-start",
-        "message": "Primer refactor de verdad. **Magic Numbers**. Esos 0.04, 0.04, 0.04... ¿cuál es salud, cuál es pensión? Cuando me mandaron este código, nadie sabía. Tuve que rastrear todas las veces que aparecía ese número en el proyecto para entender qué significaba. Resulta que era la tasa de retención de salud y pensión. Ponles nombre y tu yo del futuro te lo agradecerá.",
+        "message": "Primer refactor de verdad. **Magic Numbers**. Esos 0.04, 0.04, 0.04... ¿cuál es salud, cuál es pensión? Una vez vi este mismo smell cuando recibí un código, nadie sabía qué significaba cada número. Tuve que rastrear todas las veces que aparecía para entender qué significaba. Resulta que era la tasa de retención de salud y pensión. Ponles nombre y tu yo del futuro te lo agradecerá.",
         "highlightLine": 5,
         "zone": "panel"
       },
