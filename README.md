@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/logo-unal.png" alt="UNAL" width="100"/>
-</p>
-
 # RefactorQuest
 
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-blue)](https://cesarfrr.github.io/refactor-quest/)
