@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo-unal.jpg" alt="UNAL" width="120"/>
+  <img src="docs/logo-unal.jpg" alt="UNAL" width="100"/>
 </p>
 
 # RefactorQuest
@@ -9,6 +9,22 @@
 Juego serio (ABJ) para aprender refactorización de código. Proyecto final del curso *ABJ-d* — Universidad Nacional de Colombia, sede Bogotá.
 
 El jugador asume el rol de un ingeniero forense que debe diagnosticar y corregir *code smells* en un sistema legacy, escribiendo código real en el editor Monaco (VS Code).
+
+<p align="center">
+  <img src="docs/refactorquest_wireframe.png" alt="Wireframe del juego" width="70%"/>
+</p>
+
+<p align="center">
+  <em>Wireframe de la interfaz del juego (tomado del reporte final)</em>
+</p>
+
+<p align="center">
+  <img src="docs/refactorquest_level_complete.png" alt="Pantalla de nivel completado" width="70%"/>
+</p>
+
+<p align="center">
+  <em>Pantalla de victoria al completar un nivel</em>
+</p>
 
 ## Stack
 
