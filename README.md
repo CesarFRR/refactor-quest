@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo-unal.jpg" alt="UNAL" width="100"/>
+  <img src="docs/logo-unal.png" alt="UNAL" width="100"/>
 </p>
 
 # RefactorQuest
