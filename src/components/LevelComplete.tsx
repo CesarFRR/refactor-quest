@@ -6,8 +6,6 @@ interface Props {
   onNextLevel?: () => void
   onReplay: () => void
   nextLevel?: Level
-  /** Estrellas recibidas (cuando se entrega con deuda en vez de completar perfecto) */
-  starCount?: number
 }
 
 function Star({ filled }: { filled: boolean }) {
@@ -21,13 +19,13 @@ function Star({ filled }: { filled: boolean }) {
   )
 }
 
-export function LevelComplete({ level, state, onNextLevel, onReplay, nextLevel, starCount }: Props) {
+export function LevelComplete({ level, state, onNextLevel, onReplay, nextLevel }: Props) {
   const fixedCount = Object.values(state.smellStatus).filter(s => s === 'fixed').length
   const totalSmells = level.smells.length
   const passedTests = state.testResults.filter(r => r.passed).length
   const totalTests = state.testResults.length
   const score = state.stability * 10 + fixedCount * 50 + (totalTests > 0 && passedTests === totalTests ? 200 : 0)
-  const stars = starCount ?? (score >= 1000 ? 3 : score >= 600 ? 2 : 1)
+  const stars = score >= 1000 ? 3 : score >= 600 ? 2 : 1
   const usedEnergy = level.energyBudget - state.energy
 
   return (

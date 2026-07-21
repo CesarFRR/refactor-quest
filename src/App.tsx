@@ -168,8 +168,6 @@ export default function App() {
 
   // ── Estrellas guardadas (para LevelSelect) ──
   const [savedStars, setSavedStars] = useState<Record<number, number>>(loadStars)
-  // Estrellas de la entrega actual (para LevelComplete cuando se entrega con deuda)
-  const [deliverStars, setDeliverStars] = useState<number | null>(null)
 
   // Silenciar errores internos de Monaco (cancelación de promesas al cambiar modelo)
   useEffect(() => {
@@ -239,22 +237,14 @@ export default function App() {
     prevRunning.current = false
   }, [resetLevel, resetAll])
 
-  // ── Entregar nivel anticipadamente (tests OK pero con deuda) ──
-  const handleDeliver = useCallback(() => {
-    const stars = calcStars(currentLevel.smells, state.smellStatus, results)
-    saveStarsEntry(currentLevel.id, stars)
-    setSavedStars(prev => ({ ...prev, [currentLevel.id]: stars }))
-    setDeliverStars(stars)
-    // Desbloquear siguiente nivel
-    const nextIdx = currentLevelIndex + 1
-    if (nextIdx < levels.length) {
-      setUnlockedLevels(prev => new Set(prev).add(levels[nextIdx].id))
+  // ── Guardar estrellas cuando se completa el nivel ──
+  useEffect(() => {
+    if (levelCompleted) {
+      const stars = calcStars(currentLevel.smells, state.smellStatus, results)
+      saveStarsEntry(currentLevel.id, stars)
+      setSavedStars(prev => ({ ...prev, [currentLevel.id]: stars }))
     }
-  }, [currentLevel, currentLevelIndex, state.smellStatus, results])
-
-  // Si tests pasan, se puede entregar (aunque haya deuda)
-  const allTestsPassed = results.length > 0 && results.every(r => r.passed)
-  const canDeliver = allTestsPassed && !levelCompleted
+  }, [levelCompleted, currentLevel, state.smellStatus, results])
 
   const passedCount = results.filter((r) => r.passed).length
   const totalTests = currentLevel.tests.length
@@ -367,8 +357,6 @@ export default function App() {
           onRunTests={handleRunTests}
           running={running}
           locked={state.interactiveLock}
-          onDeliver={canDeliver ? handleDeliver : undefined}
-          canDeliver={canDeliver}
         />
         <div data-zone="editor" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <EditorPanel
@@ -462,18 +450,6 @@ export default function App() {
           onReplay={handleResetLevel}
           onNextLevel={currentLevelIndex < levels.length - 1 ? handleNextLevel : undefined}
           nextLevel={levels[currentLevelIndex + 1]}
-          starCount={deliverStars ?? undefined}
-        />
-      )}
-      {/* Nivel entregado con deuda: también mostrar LevelComplete */}
-      {deliverStars !== null && !levelCompleted && (
-        <LevelComplete
-          level={currentLevel}
-          state={{ ...state, testResults: results }}
-          onReplay={handleResetLevel}
-          onNextLevel={currentLevelIndex < levels.length - 1 ? handleNextLevel : undefined}
-          nextLevel={levels[currentLevelIndex + 1]}
-          starCount={deliverStars}
         />
       )}
     </div>

@@ -8,10 +8,6 @@ interface Props {
   running: boolean
   /** Si true, bloquea la interacción (tutorial de Cody) */
   locked?: boolean
-  /** Handler para "Entregar nivel" (tests pasan pero hay deuda) */
-  onDeliver?: () => void
-  /** Si true, el nivel se puede entregar (tests pasan) */
-  canDeliver?: boolean
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -28,7 +24,7 @@ function calcInitialWidth(): number {
   return Math.min(Math.max(360, Math.round(window.innerWidth * 0.28)), 500)
 }
 
-export function SmellPanel({ level, state, onRunTests, running, locked, onDeliver, canDeliver }: Props) {
+export function SmellPanel({ level, state, onRunTests, running, locked }: Props) {
   const [panelWidth, setPanelWidth] = useState(calcInitialWidth)
   const dragging = useRef(false)
   const startX = useRef(0)
@@ -274,27 +270,6 @@ export function SmellPanel({ level, state, onRunTests, running, locked, onDelive
           <p style={{ marginTop: 8, marginBottom: 0, fontSize: 12, color: '#e5c07b' }}>
             Intenta otra estrategia.
           </p>
-        )}
-
-        {/* Botón "Entregar nivel" — visible cuando tests pasan aunque haya deuda */}
-        {canDeliver && onDeliver && (
-          <button
-            onClick={onDeliver}
-            style={{
-              width: '100%', marginTop: 8,
-              padding: '9px 0',
-              background: 'rgba(229,192,123,0.12)',
-              color: '#e5c07b',
-              border: '1px solid rgba(229,192,123,0.25)',
-              borderRadius: 4,
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: 'pointer',
-            }}
-          >
-            Entregar nivel
-          </button>
         )}
       </div>
 
