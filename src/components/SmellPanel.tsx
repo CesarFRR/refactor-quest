@@ -8,6 +8,8 @@ interface Props {
   running: boolean
   /** Si true, bloquea la interacción (tutorial de Cody) */
   locked?: boolean
+  /** Si true, tests bloqueados porque la vista actual no es la final (Antes/Después nivel 0) */
+  testsViewLocked?: boolean
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -24,7 +26,7 @@ function calcInitialWidth(): number {
   return Math.min(Math.max(360, Math.round(window.innerWidth * 0.28)), 500)
 }
 
-export function SmellPanel({ level, state, onRunTests, running, locked }: Props) {
+export function SmellPanel({ level, state, onRunTests, running, locked, testsViewLocked }: Props) {
   const [panelWidth, setPanelWidth] = useState(calcInitialWidth)
   const dragging = useRef(false)
   const startX = useRef(0)
@@ -70,7 +72,8 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
   const testsLocked = (state.smellScore ?? 0) < 0.5
   // Nivel 0: el usuario no edita código (demo), pero puede ejecutar tests tras la inyección
   const isDemoLevel = level.id === 0
-  const canRun = (isDemoLevel || codeChanged) && !running && !locked && !testsLocked
+  // testsViewLocked: en nivel 0, si está viendo "Antes", no puede ejecutar tests
+  const canRun = (isDemoLevel || codeChanged) && !running && !locked && !testsLocked && !testsViewLocked
 
   return (
     <aside className="rq-panel" style={{
@@ -212,6 +215,11 @@ export function SmellPanel({ level, state, onRunTests, running, locked }: Props)
 
       {/* ── Botón + resultados — siempre visible ── */}
       <div style={{ padding: '12px 18px', borderTop: '1px solid #2c313a' }}>
+        {testsViewLocked && (
+          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#e5c07b', textAlign: 'center' }}>
+            Pulsa "Después" para ejecutar tests sobre el código refactorizado
+          </p>
+        )}
         {!codeChanged && !isDemoLevel && (
           <p style={{ margin: '0 0 8px', fontSize: 12, color: '#e5c07b', textAlign: 'center' }}>
             Edita el código antes de ejecutar tests

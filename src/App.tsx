@@ -361,6 +361,7 @@ export default function App() {
           onRunTests={handleRunTests}
           running={running}
           locked={state.interactiveLock}
+          testsViewLocked={currentLevel.id === 0 && beforeAfterView === 'before'}
         />
         <div data-zone="editor" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <EditorPanel
