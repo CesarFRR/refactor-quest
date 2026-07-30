@@ -6,8 +6,16 @@ interface Props {
   levelCount: number
 }
 
+const FONTS = [
+  { id: 'vt323', label: 'VT323', family: "'VT323', 'JetBrains Mono', monospace", style: { color: '#98c379' } },
+  { id: 'pixelify', label: 'Pixelify Sans', family: "'Pixelify Sans', 'JetBrains Mono', monospace", style: { color: '#61afef' } },
+  { id: 'jetbrains', label: 'JetBrains Mono', family: "'JetBrains Mono', monospace", style: { color: '#e5c07b' } },
+]
+
 export function StartMenu({ onStart, levelCount }: Props) {
   const [pressing, setPressing] = useState(false)
+  const [fontIndex, setFontIndex] = useState(0)
+  const currentFont = FONTS[fontIndex]
 
   return (
     <div style={{
@@ -35,7 +43,7 @@ export function StartMenu({ onStart, levelCount }: Props) {
         alignItems: 'center', justifyContent: 'center',
         gap: 12,
       }}>
-        <RetroTitle width={1000} />
+        <RetroTitle width={1000} fontFamily={currentFont.family} />
 
         <div style={{
           fontSize: 13, color: '#636d83', marginTop: 8,
@@ -71,11 +79,29 @@ export function StartMenu({ onStart, levelCount }: Props) {
           ▶ PLAY
         </button>
 
-        <div style={{
-          fontSize: 10, color: '#3e4451', marginTop: 16,
-          letterSpacing: '0.06em',
-        }}>
-          Presiona PLAY para continuar
+        <div style={{ display: 'flex', gap: 6, marginTop: 20, alignItems: 'center' }}>
+          <span style={{ fontSize: 10, color: '#4b5263', letterSpacing: '0.06em' }}>
+            tipo:
+          </span>
+          {FONTS.map((f, i) => (
+            <button
+              key={f.id}
+              onClick={() => setFontIndex(i)}
+              style={{
+                background: i === fontIndex ? '#2c313a' : 'transparent',
+                border: i === fontIndex ? '1px solid #4b5263' : '1px solid transparent',
+                borderRadius: 4,
+                padding: '3px 10px',
+                fontFamily: f.family,
+                fontSize: 13,
+                color: f.style.color,
+                cursor: 'pointer',
+                transition: 'background 100ms ease, border-color 100ms ease',
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
 

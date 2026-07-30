@@ -1,14 +1,9 @@
-/* ============================================================
-   RefactorQuest — RetroTitle
-   Título "REFACTOR QUEST" en SVG con estilo retro/terminal.
-   Reemplaza el ASCII art de asciiArt.ts.
-   ============================================================ */
-
 interface Props {
   width?: number
+  fontFamily?: string
 }
 
-export function RetroTitle({ width = 480 }: Props) {
+export function RetroTitle({ width = 480, fontFamily = "'VT323', 'JetBrains Mono', monospace" }: Props) {
   const height = Math.round(width * 0.18)
 
   return (
@@ -19,7 +14,6 @@ export function RetroTitle({ width = 480 }: Props) {
       style={{ display: 'block' }}
     >
       <defs>
-        {/* Glow para el título */}
         <filter id="retro-glow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="2.5" result="blur" />
           <feMerge>
@@ -27,7 +21,6 @@ export function RetroTitle({ width = 480 }: Props) {
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        {/* Gradiente verde-amarillo */}
         <linearGradient id="retro-grad" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#98c379" />
           <stop offset="50%" stopColor="#e5c07b" />
@@ -35,11 +28,10 @@ export function RetroTitle({ width = 480 }: Props) {
         </linearGradient>
       </defs>
 
-      {/* REFACTOR */}
       <text
         x="240" y="36"
         textAnchor="middle"
-        fontFamily="'JetBrains Mono', 'Fira Code', monospace"
+        fontFamily={fontFamily}
         fontSize="34"
         fontWeight="700"
         letterSpacing="6"
@@ -49,11 +41,10 @@ export function RetroTitle({ width = 480 }: Props) {
         REFACTOR
       </text>
 
-      {/* QUEST (más pequeño, debajo) */}
       <text
         x="240" y="70"
         textAnchor="middle"
-        fontFamily="'JetBrains Mono', 'Fira Code', monospace"
+        fontFamily={fontFamily}
         fontSize="24"
         fontWeight="700"
         letterSpacing="10"
@@ -64,7 +55,6 @@ export function RetroTitle({ width = 480 }: Props) {
         QUEST
       </text>
 
-      {/* Línea decorativa */}
       <line
         x1="80" y1="80" x2="400" y2="80"
         stroke="#3e4451" strokeWidth="1"
